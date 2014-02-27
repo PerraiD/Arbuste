@@ -10,7 +10,7 @@ seq
         seq
           print
             stdout
-            "plop "
+            "4 + 3 = "
           3
   print
     stdout
