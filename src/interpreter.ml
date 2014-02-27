@@ -42,7 +42,7 @@ let rec evaluate ast env = match ast with
   (* Print *)
 
   | Operation (Print, Operand Stdout, Operand v)
-    -> Operand.print_endline v; Operand Void
+    -> Operand.print v; Operand Void
   | Operation (Print, _, _)
     -> raise (EvaluationError "Print error")
    
