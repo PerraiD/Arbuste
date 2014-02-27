@@ -1,0 +1,17 @@
+seq
+  in
+    let 
+      a 
+      4
+    print
+      stdout
+      + 
+        a
+        seq
+          print
+            stdout
+            "plop "
+          3
+  print
+    stdout
+    "\n"
