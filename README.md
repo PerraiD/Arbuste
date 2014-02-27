@@ -1,7 +1,7 @@
 What is it?
 ===========
 
-Arbuste is toy langage where all instructions are binary operators. A program is thus a binary tree.
+Arbuste is toy language where all instructions are binary operators. A program is thus a binary tree.
 
 The compiler is written in Ocaml with ocamllex and ocamlyacc.
 
