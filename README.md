@@ -10,19 +10,19 @@ Compile it!
 
 As bytecode:
 
-  ocamlbuild src/arbuste.byte
+    ocamlbuild src/arbuste.byte
   
 As native code:
 
-  ocamlbuild src/arbiste.native
+    ocamlbuild src/arbiste.native
   
 Run!
 ====
 
 Run
 
-  ./arbuste.byte examples/helloworld.arb
+    ./arbuste.byte examples/helloworld.arb
   
 or
 
-  ./arbuste.native examples/helloworld.arb
+    ./arbuste.native examples/helloworld.arb
