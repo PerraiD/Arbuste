@@ -1,1 +1,1 @@
-print stdout "Hello world!"
+print stdout "Hello world!\n"
