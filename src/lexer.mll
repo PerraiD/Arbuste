@@ -11,19 +11,13 @@
   (** Increments the lexing buffer line offset by the given length. *)
   let increment_bol lexbuf length =
     let pos = lexbuf.lex_curr_p in
-    lexbuf.lex_curr_p <- {pos with pos_bol = pos.pos_bol + length}
-
-  (** Removes the quotes from the given string. *)
-  let remove_quotes s =
-    let length = String.length s in
-    String.sub s 1 (length - 2)
+    lexbuf.lex_curr_p <- {pos with pos_bol = pos.pos_bol + length}    
 }
 
 let blank = ['\t' '\r' ' ']
 let newline = ('\n' | "\r\n")
 let integer = ['0'-'9']+
 let ident = ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9']*
-let string_value = '"'[^'"']*'"'
 
 rule token = parse
   | newline {increment_linenum lexbuf; token lexbuf}
@@ -48,11 +42,23 @@ rule token = parse
 
   | integer as lxm      {increment_bol lexbuf (String.length lxm); INT(int_of_string lxm)}
   | ident as lxm        {increment_bol lexbuf (String.length lxm); IDENT(lxm)}
-  | string_value as lxm {increment_bol lexbuf (String.length lxm); STRING(remove_quotes lxm)}
+
+  | '"' {let buffer = Buffer.create 20 in string_value buffer lexbuf}
 
   | eof {EOF}
 
   | _  as lxm {Error.unrecognized_char lexbuf.lex_curr_p lxm; token lexbuf}
+
+and string_value buffer = parse
+  | '"' {STRING(Buffer.contents buffer)}
+  | eof {failwith "String parsing error"}
+
+  | "\\t"     { Buffer.add_char buffer '\t'; string_value buffer lexbuf }
+  | "\\n"     { Buffer.add_char buffer '\n'; string_value buffer lexbuf }
+  | '\\' '"'  { Buffer.add_char buffer '"'; string_value buffer lexbuf }
+  | '\\' '\\' { Buffer.add_char buffer '\\'; string_value buffer lexbuf }
+  
+  | _ as c {Buffer.add_char buffer c; string_value buffer lexbuf}
 
 and comment = parse
   | "*/" {increment_bol lexbuf 2; token lexbuf}
