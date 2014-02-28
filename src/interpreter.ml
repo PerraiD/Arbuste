@@ -46,7 +46,7 @@ let rec evaluate ast env = match ast with
   | Operation (Print, _, _)
     -> raise (EvaluationError "Print error")
    
-  (* Valid arithmetic operations *)
+  (* Arithmetic operations *)
 
   | Operation (Add, Operand (Int x1), Operand (Int x2))
     -> Operand (Int (x1 + x2))
@@ -56,9 +56,6 @@ let rec evaluate ast env = match ast with
     -> Operand (Int (x1 * x2))
   | Operation (Div, Operand (Int x1), Operand (Int x2))
     -> Operand (Int (x1 / x2))
-
-  (* Invalid arithmetic operations *)
-
   | Operation (Add, _, _)
   | Operation (Sub, _, _)
   | Operation (Mul, _, _)

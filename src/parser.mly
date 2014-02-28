@@ -21,7 +21,8 @@
 %%
 
 main:
-  operation EOF {$1}
+  | operation EOF {$1}
+  | EOF {Operand Void}
 ;
 
 operation:
