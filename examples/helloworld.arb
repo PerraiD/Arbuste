@@ -1,1 +1,2 @@
+/* Just print "Hello world!". */
 print stdout "Hello world!\n"
