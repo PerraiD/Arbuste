@@ -1,18 +1,20 @@
 open Lexing
 
-(** Prints a lexing error for anunrecognized character. *)
-let unrecognized_char position character =
-    Printf.printf "Error line %d character %d: Unrecognized character '%c'\n"
-                  position.pos_lnum (position.pos_bol + 1) character
+type arbuste_exception =
+  | Simple of string
+  | Positioned of string * Lexing.position
 
-(** Prints a parsing warning for an uninitialized variable. *)
-let not_initialized variable position =
-    let line_number = position.pos_lnum in
-    Printf.printf "Warning line %d: variable '%s' has not been initialized\n"
-                  line_number variable
+exception ArbusteError of arbuste_exception
 
-(** Prints a parsing warning for an already initializied variable. *)
-let already_initialized variable position =
-    let line_number = position.pos_lnum in
-    Printf.printf "Warning line %d: variable '%s' has already been initialized\n"
-                  line_number variable
+let raise_simple message = raise (ArbusteError (Simple message))
+
+let raise_positioned s p =
+  let l_pos = string_of_int p.pos_lnum in
+  let c_pos = string_of_int (p.pos_bol + 1) in
+  let message = "Error line " ^ l_pos ^ " character " ^ c_pos ^ ": " ^ s in
+  raise (ArbusteError (Positioned (message, p)))
+
+let print = function
+  | Simple m -> Printf.eprintf "Error: %s\n" m
+  | Positioned (m, p) -> Printf.eprintf "Error line %d character %d: %s\n"
+                         p.pos_lnum (p.pos_bol + 1) m

@@ -11,7 +11,10 @@
   (** Increments the lexing buffer line offset by the given length. *)
   let increment_bol lexbuf length =
     let pos = lexbuf.lex_curr_p in
-    lexbuf.lex_curr_p <- {pos with pos_bol = pos.pos_bol + length}    
+    lexbuf.lex_curr_p <- {pos with pos_bol = pos.pos_bol + length}
+
+  let string_of_char c = String.make 1 c
+   
 }
 
 let blank = ['\t' '\r' ' ']
@@ -40,18 +43,18 @@ rule token = parse
   | "let" {increment_bol lexbuf 3; LET}
   | "in"  {increment_bol lexbuf 2; IN}
 
-  | integer as lxm      {increment_bol lexbuf (String.length lxm); INT(int_of_string lxm)}
-  | ident as lxm        {increment_bol lexbuf (String.length lxm); IDENT(lxm)}
+  | integer as lxm  {increment_bol lexbuf (String.length lxm); INT(int_of_string lxm)}
+  | ident as lxm    {increment_bol lexbuf (String.length lxm); IDENT(lxm)}
 
   | '"' {let buffer = Buffer.create 20 in string_value buffer lexbuf}
 
   | eof {EOF}
 
-  | _  as lxm {Error.unrecognized_char lexbuf.lex_curr_p lxm; token lexbuf}
+  | _  as lxm {Error.raise_positioned ("Unrecognized character " ^ (string_of_char lxm)) lexbuf.lex_curr_p}
 
 and string_value buffer = parse
   | '"' {STRING(Buffer.contents buffer)}
-  | eof {failwith "String parsing error"}
+  | eof {Error.raise_simple "Unexpected end of file in a open string"}
 
   | "\\t"     { Buffer.add_char buffer '\t'; string_value buffer lexbuf }
   | "\\n"     { Buffer.add_char buffer '\n'; string_value buffer lexbuf }
@@ -63,6 +66,6 @@ and string_value buffer = parse
 and comment = parse
   | "*/" {increment_bol lexbuf 2; token lexbuf}
   | _    {increment_bol lexbuf 1; comment lexbuf}
-  | eof  {EOF}
+  | eof  {Error.raise_simple "Unexpected end of file in a comment"}
 
 {}

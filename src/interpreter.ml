@@ -13,7 +13,7 @@ let rec evaluate ast env = match ast with
     -> evaluate op (Symbols.add env id x)
   | Operation (In, _, _)
   | Operation (Let, _, _)
-    -> raise (EvaluationError "Invalid in ... let ... construction")
+    -> Error.raise_simple "Invalid in ... let ... construction"
 
   (* Reduction rules *)
 
@@ -37,14 +37,14 @@ let rec evaluate ast env = match ast with
   | Operation (Seq, Operand Void, Operand x) 
     -> evaluate (Operand x) env
   | Operation (Seq, Operand _, _)
-    -> raise (EvaluationError "Invalid seq ... construction")
+    -> Error.raise_simple "Invalid seq ... construction"
 
   (* Print *)
 
   | Operation (Print, Operand Stdout, Operand v)
     -> Operand.print v; Operand Void
   | Operation (Print, _, _)
-    -> raise (EvaluationError "Print error")
+    -> Error.raise_simple "Print error"
    
   (* Arithmetic operations *)
 
@@ -60,11 +60,11 @@ let rec evaluate ast env = match ast with
   | Operation (Sub, _, _)
   | Operation (Mul, _, _)
   | Operation (Div, _, _)
-    -> raise (EvaluationError "Arithmetic operations only accept int values")
+    -> Error.raise_simple "Arithmetic operations only accept int values"
 
 (** Interprets the given AST. *)
 let run ast =
   let env = Symbols.create () in
   match evaluate ast env with
     | Operand Void -> ()
-    | _ -> raise (EvaluationError "The program should return void")
+    | _ -> Error.raise_simple "The program should return void"
