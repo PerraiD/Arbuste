@@ -1,0 +1,2 @@
+print stdout "Will it print?\n" /* a comment
+that is not closed
