@@ -1,0 +1,15 @@
+in
+  let
+    var
+    "out\n"
+  seq
+    in
+      let
+        var
+        "in\n"
+      print
+        stdout
+        var
+    print
+      stdout
+       var

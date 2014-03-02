@@ -2,15 +2,27 @@ open Ast
 open Ast.Operator
 open Ast.Operand
 
-(** Interprets the given AST with the given environment. *)
+let print_ident i env = match Symbols.find env i with
+  | String s -> print_string s
+  | Int i -> print_int i
+  | _ -> Error.raise_simple "Print error, invalid parameter"
+
+let print_operand opd env = match opd with
+  | String s -> print_string s
+  | Int i -> print_int i
+  | Ident (i, _) -> print_ident i env
+  | _ -> Error.raise_simple "Print error, invalid parameter"
+
+(** Interprets the given [ast] with the given environment. *)
 let rec evaluate ast env = match ast with
   | Operand _ as leaf
     -> leaf
 
   (* Variable assignement *)
 
-  | Operation (In, Operation (Let, Operand (Ident id), Operand x), op)
-    -> evaluate op (Symbols.add env id x)
+  | Operation (In, Operation (Let, Operand (Ident (id, p)), Operand x), op)
+    -> if Symbols.mem env id then Error.warn_shadowed id p;
+       evaluate op (Symbols.add env id x)
   | Operation (In, _, _)
   | Operation (Let, _, _)
     -> Error.raise_simple "Invalid in ... let ... construction"
@@ -28,7 +40,7 @@ let rec evaluate ast env = match ast with
 
   (* Identifier *)
 
-  | Operation (opr, Operand Ident i, opd)
+  | Operation (opr, Operand Ident (i, _), opd)
     -> let v = Symbols.find env i in
        evaluate (Operation (opr, Operand v, opd)) env
 
@@ -42,7 +54,7 @@ let rec evaluate ast env = match ast with
   (* Print *)
 
   | Operation (Print, Operand Stdout, Operand v)
-    -> Operand.print v; Operand Void
+    -> print_operand v env; Operand Void        
   | Operation (Print, _, _)
     -> Error.raise_simple "Print error"
    
@@ -62,7 +74,7 @@ let rec evaluate ast env = match ast with
   | Operation (Div, _, _)
     -> Error.raise_simple "Arithmetic operations only accept int values"
 
-(** Interprets the given AST. *)
+(** Interprets the given [ast]. *)
 let run ast =
   let env = Symbols.create () in
   match evaluate ast env with

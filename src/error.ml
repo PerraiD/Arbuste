@@ -18,3 +18,7 @@ let print = function
   | Simple m -> Printf.eprintf "Error: %s\n" m
   | Positioned (m, p) -> Printf.eprintf "Error line %d character %d: %s\n"
                          p.pos_lnum (p.pos_bol + 1) m
+
+let warn_shadowed id p =
+   Printf.eprintf "Warning line %d character %d: previous definition of %s is shadowed\n"
+     p.pos_lnum (p.pos_bol + 1) id

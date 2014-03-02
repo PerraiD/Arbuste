@@ -13,6 +13,7 @@
     let pos = lexbuf.lex_curr_p in
     lexbuf.lex_curr_p <- {pos with pos_bol = pos.pos_bol + length}
 
+  (** Turns a char into a string containing this char. *)
   let string_of_char c = String.make 1 c
    
 }

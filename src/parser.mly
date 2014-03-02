@@ -45,5 +45,5 @@ operand:
   | STDOUT {Stdout}
   | STRING {String $1}
   | INT {Int $1}
-  | IDENT {Ident $1}
+  | IDENT {Ident ($1, symbol_start_pos ())}
 ;

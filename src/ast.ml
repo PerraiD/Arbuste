@@ -22,13 +22,13 @@ module Operand = struct
     | Stdout
     | String of string
     | Int of int
-    | Ident of string
+    | Ident of string * Lexing.position
   let to_string = function
     | Void -> "void"
     | Stdout -> "stdout"
     | String x -> x
     | Int x -> string_of_int x
-    | Ident x -> x
+    | Ident (x, _) -> x
   let print opd = print_string (to_string opd)
   let print_endline opd = print opd; print_newline ()
 end
