@@ -1,7 +1,11 @@
 in
   let
-    b
+    condition
     true
   seq
     print stdout false
-    print stdout b
+    if
+      condition
+      branch
+        print stdout "\ncondition: true\n"
+        print stdout "\ncondition: false\n"

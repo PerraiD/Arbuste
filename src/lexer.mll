@@ -40,9 +40,11 @@ rule token = parse
   | "print"  {increment_bol lexbuf 5; PRINT}
   | "stdout" {increment_bol lexbuf 6; STDOUT}
   
-  | "seq" {increment_bol lexbuf 3; SEQ}
-  | "let" {increment_bol lexbuf 3; LET}
-  | "in"  {increment_bol lexbuf 2; IN}
+  | "seq"    {increment_bol lexbuf 3; SEQ}
+  | "let"    {increment_bol lexbuf 3; LET}
+  | "in"     {increment_bol lexbuf 2; IN}
+  | "if"     {increment_bol lexbuf 2; IF}
+  | "branch" {increment_bol lexbuf 6; BRANCH}
 
   | "true"  {BOOL(true)}
   | "false" {BOOL(false)}

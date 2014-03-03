@@ -2,16 +2,18 @@ module Operator = struct
   type t = 
     | Add| Sub | Mul | Div
     | Print
-    | Seq | Let | In
+    | Seq | Let | In | If | Branch
   let to_string = function
-    | Add -> "+"
-    | Sub -> "-"
-    | Mul -> "*"
-    | Div -> "/"
-    | Print -> "print"
-    | Seq -> "seq"
-    | Let -> "let"
-    | In -> "in"
+    | Add    -> "+"
+    | Sub    -> "-"
+    | Mul    -> "*"
+    | Div    -> "/"
+    | Print  -> "print"
+    | Seq    -> "seq"
+    | Let    -> "let"
+    | In     -> "in"
+    | If     -> "if"
+    | Branch -> "branch"
   let print opr = print_string (to_string opr)
   let print_endline opr = print opr; print_newline ()  
 end
@@ -25,10 +27,11 @@ module Operand = struct
     | Bool of bool
     | Ident of string * Lexing.position
   let to_string = function
-    | Void -> "void"
-    | Stdout -> "stdout"
-    | String x -> x
-    | Int x -> string_of_int x
+    | Void         -> "void"
+    | Stdout       -> "stdout"
+    | String x     -> x
+    | Int x        -> string_of_int x
+    | Bool b       -> string_of_bool b
     | Ident (x, _) -> x
   let print opd = print_string (to_string opd)
   let print_endline opd = print opd; print_newline ()

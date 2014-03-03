@@ -9,7 +9,7 @@
 %token EQUAL
 %token BEGIN_PAR END_PAR
 %token PRINT STDOUT
-%token SEQ LET IN
+%token SEQ LET IN IF BRANCH
 
 %token <int> INT
 %token <bool> BOOL
@@ -33,14 +33,16 @@ operation:
 ;
 
 operator:
-  | ADD   {Add}
-  | SUB   {Sub}
-  | MUL   {Mul}
-  | DIV   {Div}
-  | PRINT {Print}
-  | SEQ   {Seq}
-  | LET   {Let}
-  | IN    {In}
+  | ADD    {Add}
+  | SUB    {Sub}
+  | MUL    {Mul}
+  | DIV    {Div}
+  | PRINT  {Print}
+  | SEQ    {Seq}
+  | LET    {Let}
+  | IN     {In}
+  | IF     {If}
+  | BRANCH {Branch}
 
 operand:
   | STDOUT {Stdout}

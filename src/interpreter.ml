@@ -17,6 +17,8 @@ let print_operand opd env = match opd with
 
 (** Interprets the given [ast] with the given environment. *)
 let rec evaluate ast env = match ast with
+  | Operand (Ident (i, _))
+    -> Operand (Symbols.find env i)
   | Operand _ as leaf
     -> leaf
 
@@ -29,6 +31,18 @@ let rec evaluate ast env = match ast with
   | Operation (Let, _, _)
     -> Error.raise_simple "Invalid in ... let ... construction"
 
+  (* Branching *)
+
+  | Operation (If, cond, Operation (Branch, t, f))
+    -> begin match evaluate cond env with
+         | Operand (Bool true)  -> evaluate t env
+         | Operand (Bool false) -> evaluate f env
+         | _ -> Error.raise_simple "Condition must be a boolean value"
+       end
+  | Operation (If, _, _)
+  | Operation (Branch, _, _)
+    -> Error.raise_simple "Invalid if ... branch ... construction"
+
   (* Reduction rules *)
 
   | Operation (opr, (Operation (o, x, y)), opd)
@@ -39,12 +53,6 @@ let rec evaluate ast env = match ast with
     -> (* right reduce *)
        let in_eval = evaluate (Operation (o, x, y)) env in
        evaluate (Operation (opr, opd, in_eval)) env
-
-  (* Identifier *)
-
-  | Operation (opr, Operand Ident (i, _), opd)
-    -> let v = Symbols.find env i in
-       evaluate (Operation (opr, Operand v, opd)) env
 
   (* Sequence *)
 
