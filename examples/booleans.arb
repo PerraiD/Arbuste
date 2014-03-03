@@ -1,0 +1,7 @@
+in
+  let
+    b
+    true
+  seq
+    print false
+    print b
