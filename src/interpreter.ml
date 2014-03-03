@@ -5,11 +5,13 @@ open Ast.Operand
 let print_ident i env = match Symbols.find env i with
   | String s -> print_string s
   | Int i -> print_int i
+  | Bool b -> print_string (string_of_bool b)
   | _ -> Error.raise_simple "Print error, invalid parameter"
 
 let print_operand opd env = match opd with
   | String s -> print_string s
   | Int i -> print_int i
+  | Bool b -> print_string (string_of_bool b)
   | Ident (i, _) -> print_ident i env
   | _ -> Error.raise_simple "Print error, invalid parameter"
 

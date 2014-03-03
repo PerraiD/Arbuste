@@ -44,6 +44,9 @@ rule token = parse
   | "let" {increment_bol lexbuf 3; LET}
   | "in"  {increment_bol lexbuf 2; IN}
 
+  | "true"  {BOOL(true)}
+  | "false" {BOOL(false)}
+
   | integer as lxm  {increment_bol lexbuf (String.length lxm); INT(int_of_string lxm)}
   | ident as lxm    {increment_bol lexbuf (String.length lxm); IDENT(lxm)}
 

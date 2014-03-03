@@ -22,6 +22,7 @@ module Operand = struct
     | Stdout
     | String of string
     | Int of int
+    | Bool of bool
     | Ident of string * Lexing.position
   let to_string = function
     | Void -> "void"
