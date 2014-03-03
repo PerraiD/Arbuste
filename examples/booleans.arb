@@ -3,5 +3,5 @@ in
     b
     true
   seq
-    print false
-    print b
+    print stdout false
+    print stdout b
