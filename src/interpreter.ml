@@ -82,7 +82,16 @@ let rec evaluate ast env = match ast with
   | Operation (Sub, _, _)
   | Operation (Mul, _, _)
   | Operation (Div, _, _)
-    -> Error.raise_simple "Arithmetic operations only accept int values"
+    -> Error.raise_simple "Arithmetic operations only accept integer values"
+
+  (* Boolean operations *)
+  | Operation (Or, Operand (Bool x), Operand (Bool y))
+    -> Operand (Bool (x || y))
+  | Operation (And, Operand (Bool x), Operand (Bool y))
+    -> Operand (Bool (x && y))
+  | Operation (Or, _, _)
+  | Operation (And, _, _)
+    -> Error.raise_simple "Boolean operations only accept boolean values"
 
 (** Interprets the given [ast]. *)
 let run ast =

@@ -6,6 +6,7 @@
 
 %token EOF
 %token ADD SUB MUL DIV
+%token OR AND
 %token EQUAL
 %token BEGIN_PAR END_PAR
 %token PRINT STDOUT
@@ -37,6 +38,8 @@ operator:
   | SUB    {Sub}
   | MUL    {Mul}
   | DIV    {Div}
+  | OR     {Or}
+  | AND    {And}
   | PRINT  {Print}
   | SEQ    {Seq}
   | LET    {Let}

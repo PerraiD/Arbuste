@@ -5,7 +5,9 @@ in
   seq
     print stdout false
     if
-      condition
+      and
+        condition
+        true
       branch
         print stdout "\ncondition: true\n"
         print stdout "\ncondition: false\n"
