@@ -46,12 +46,16 @@ let rec evaluate ast env = match ast with
   (* Reduction rules *)
 
   | Operation (opr, (Operation (o, x, y)), opd)
-    -> (* left reduce *)
-       let in_eval = evaluate (Operation (o, x, y)) env in
+    -> let in_eval = evaluate (Operation (o, x, y)) env in
+       evaluate (Operation (opr, in_eval, opd)) env
+  | Operation (opr, (Operand (Ident (i, p))), opd)
+    -> let in_eval = evaluate (Operand (Ident (i, p))) env in
        evaluate (Operation (opr, in_eval, opd)) env
   | Operation (opr, opd, (Operation (o, x, y)))
-    -> (* right reduce *)
-       let in_eval = evaluate (Operation (o, x, y)) env in
+    -> let in_eval = evaluate (Operation (o, x, y)) env in
+       evaluate (Operation (opr, opd, in_eval)) env
+  | Operation (opr, opd, Operand (Ident (i, p)))
+    -> let in_eval = evaluate (Operand (Ident (i, p))) env in
        evaluate (Operation (opr, opd, in_eval)) env
 
   (* Sequence *)
