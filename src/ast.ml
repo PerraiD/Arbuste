@@ -1,6 +1,6 @@
 module Operator = struct
   type t = 
-    | Add| Sub | Mul | Div | Or | And
+    | Add| Sub | Mul | Div | Equal | Or | And
     | Print
     | Seq | Let | In | If | Branch
   let to_string = function
@@ -8,6 +8,7 @@ module Operator = struct
     | Sub    -> "-"
     | Mul    -> "*"
     | Div    -> "/"
+    | Equal  -> "="
     | Or     -> "or"
     | And    -> "and"
     | Print  -> "print"

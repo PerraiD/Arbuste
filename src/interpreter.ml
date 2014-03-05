@@ -96,6 +96,8 @@ let rec evaluate ast env = match ast with
   | Operation (Or, _, _)
   | Operation (And, _, _)
     -> Error.raise_simple "Boolean operations only accept boolean values"
+  | Operation (Equal, Operand x, Operand y)
+    -> Operand (Bool (x = y))
 
 (** Interprets the given [ast]. *)
 let run ast =

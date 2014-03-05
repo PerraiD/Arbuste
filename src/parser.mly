@@ -38,6 +38,7 @@ operator:
   | SUB    {Sub}
   | MUL    {Mul}
   | DIV    {Div}
+  | EQUAL  {Equal}
   | OR     {Or}
   | AND    {And}
   | PRINT  {Print}
