@@ -1,0 +1,23 @@
+in
+  let
+    plus
+    func
+      param
+        x
+        param
+          y
+          end
+      +
+        x
+        y
+  seq
+    print
+      stdout
+      eval
+        plus
+        param
+          3
+          param
+            5
+            end
+    print stdout "\n"

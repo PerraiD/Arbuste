@@ -3,6 +3,7 @@ module Operator = struct
     | Add| Sub | Mul | Div | Equal | Or | And
     | Print
     | Seq | Let | In | If | Branch
+    | Func | Param | Eval
   let to_string = function
     | Add    -> "+"
     | Sub    -> "-"
@@ -17,6 +18,9 @@ module Operator = struct
     | In     -> "in"
     | If     -> "if"
     | Branch -> "branch"
+    | Func   -> "func"
+    | Param  -> "param"
+    | Eval   -> "eval"
   let print opr = print_string (to_string opr)
   let print_endline opr = print opr; print_newline ()  
 end
@@ -24,6 +28,7 @@ end
 module Operand = struct
   type t =
     | Void
+    | End
     | Stdout
     | String of string
     | Int of int
@@ -31,6 +36,7 @@ module Operand = struct
     | Ident of string * Lexing.position
   let to_string = function
     | Void         -> "void"
+    | End          -> "end"
     | Stdout       -> "stdout"
     | String x     -> x
     | Int x        -> string_of_int x

@@ -3,22 +3,30 @@ open Ast.Operator
 open Ast.Operand
 
 let print_ident i env = match Symbols.find env i with
-  | String s -> print_string s
-  | Int i -> print_int i
-  | Bool b -> print_string (string_of_bool b)
+  | Operand (String s) -> print_string s
+  | Operand (Int i) -> print_int i
+  | Operand (Bool b) -> print_string (string_of_bool b)
   | _ -> Error.raise_simple "Print error, invalid parameter"
 
-let print_operand opd env = match opd with
-  | String s -> print_string s
-  | Int i -> print_int i
-  | Bool b -> print_string (string_of_bool b)
-  | Ident (i, _) -> print_ident i env
+let print_operand opn env = match opn with
+  | Operand opd -> begin match opd with
+    | String s -> print_string s
+    | Int i -> print_int i
+    | Bool b -> print_string (string_of_bool b)
+    | Ident (i, _) -> print_ident i env
+    | _ -> Error.raise_simple "Print error, invalid parameter"
+    end
   | _ -> Error.raise_simple "Print error, invalid parameter"
+
+let rec params_to_list = function
+  | Operand End -> []
+  | Operation (Param, Operand opd, next) -> (Operand opd)::(params_to_list next)
+  | ast -> Error.raise_simple "Param definition error"
 
 (** Interprets the given [ast] with the given environment. *)
 let rec evaluate ast env = match ast with
   | Operand (Ident (i, _))
-    -> Operand (Symbols.find env i)
+    -> Symbols.find env i
   | Operand _ as leaf
     -> leaf
 
@@ -26,10 +34,28 @@ let rec evaluate ast env = match ast with
 
   | Operation (In, Operation (Let, Operand (Ident (id, p)), Operand x), op)
     -> if Symbols.mem env id then Error.warn_shadowed id p;
-       evaluate op (Symbols.add env id x)
+       evaluate op (Symbols.add env id (Operand x))
+  | Operation (In, Operation (Let, Operand (Ident (id, pos)), Operation (Func, p, f)), op)
+    -> if Symbols.mem env id then Error.warn_shadowed id pos;
+       let params = params_to_list p in
+       evaluate op (Symbols.add_fun env id f params)
   | Operation (In, _, _)
   | Operation (Let, _, _)
     -> Error.raise_simple "Invalid in ... let ... construction"
+  | Operation (Func, _, _)
+  | Operation (Param, _, _)
+    -> Error.raise_simple "Invalid func ... param ... construction"
+
+  (* Function evaluation *)
+
+  | Operation (Eval, Operand (Ident (i, pos)), p)
+    -> if Symbols.mem env i
+         then
+           let (f, idents) = Symbols.find_func env i in
+           let params =  params_to_list p in
+           let func_env = Symbols.make_env idents params in
+           evaluate f func_env
+         else Error.raise_simple ("Unknown function " ^ i)
 
   (* Branching *)
 
@@ -67,7 +93,7 @@ let rec evaluate ast env = match ast with
 
   (* Print *)
 
-  | Operation (Print, Operand Stdout, Operand v)
+  | Operation (Print, Operand Stdout, v)
     -> print_operand v env; Operand Void        
   | Operation (Print, _, _)
     -> Error.raise_simple "Print error"
