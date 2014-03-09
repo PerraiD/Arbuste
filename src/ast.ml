@@ -48,8 +48,6 @@ end
 
 type t = Operand of Operand.t | Operation of Operator.t * t * t
 
-exception EvaluationError of string
-
 let print ast = 
   let rec print' = function
     | (tab, Operand x) -> print_string tab; Operand.print_endline x
