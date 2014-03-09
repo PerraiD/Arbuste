@@ -48,14 +48,16 @@ let rec evaluate ast env = match ast with
 
   (* Function evaluation *)
 
-  | Operation (Eval, Operand (Ident (i, pos)), p)
+  | Operation (Eval, Operand (Ident (i, pos)), Operation (Param, p, next))
     -> if Symbols.mem env i
          then
            let (f, idents) = Symbols.find_func env i in
-           let params =  params_to_list p in
+           let params =  params_to_list (Operation (Param, p, next)) in
            let func_env = Symbols.make_env idents params in
            evaluate f func_env
          else Error.raise_simple ("Unknown function " ^ i)
+  | Operation (Eval, _, _)
+    -> Error.raise_simple "Invalid eval ... param ... construction"
 
   (* Branching *)
 
