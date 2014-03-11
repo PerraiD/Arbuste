@@ -1,7 +1,7 @@
 in
   let
     fibo
-    function
+    func
       param
         n
         end
