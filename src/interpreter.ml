@@ -117,6 +117,7 @@ let rec evaluate ast env = match ast with
     -> Error.raise_simple "Arithmetic operations only accept integer values"
 
   (* Boolean operations *)
+
   | Operation (Or, Operand (Bool x), Operand (Bool y))
     -> Operand (Bool (x || y))
   | Operation (And, Operand (Bool x), Operand (Bool y))

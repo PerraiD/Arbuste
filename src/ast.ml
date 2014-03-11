@@ -48,6 +48,7 @@ end
 
 type t = Operand of Operand.t | Operation of Operator.t * t * t
 
+(** Prints the [ast] with only one operator or operand per line. *)
 let print ast = 
   let rec print' = function
     | (tab, Operand x) -> print_string tab; Operand.print_endline x
@@ -56,4 +57,4 @@ let print ast =
         print' (tab ^ "  ", y);
         print' (tab ^ "  ", z)
   in
-print' ("", ast)
+  print' ("", ast)
