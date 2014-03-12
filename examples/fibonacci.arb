@@ -6,9 +6,9 @@ in
         n
         end
     if
-      =<
+      <
         n
-        1
+        2
       branch
         1
         +

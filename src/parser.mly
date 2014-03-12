@@ -7,7 +7,7 @@
 %token EOF
 %token ADD SUB MUL DIV
 %token OR AND
-%token EQUAL
+%token LESSER GREATER EQUAL
 %token BEGIN_PAR END_PAR
 %token PRINT STDOUT
 %token SEQ LET IN IF BRANCH
@@ -35,22 +35,24 @@ operation:
 ;
 
 operator:
-  | ADD    {Add}
-  | SUB    {Sub}
-  | MUL    {Mul}
-  | DIV    {Div}
-  | EQUAL  {Equal}
-  | OR     {Or}
-  | AND    {And}
-  | PRINT  {Print}
-  | SEQ    {Seq}
-  | LET    {Let}
-  | IN     {In}
-  | IF     {If}
-  | BRANCH {Branch}
-  | FUNC   {Func}
-  | PARAM  {Param}
-  | EVAL   {Eval}
+  | ADD     {Add}
+  | SUB     {Sub}
+  | MUL     {Mul}
+  | DIV     {Div}
+  | LESSER  {Lesser}
+  | GREATER {Greater}
+  | EQUAL   {Equal}
+  | OR      {Or}
+  | AND     {And}
+  | PRINT   {Print}
+  | SEQ     {Seq}
+  | LET     {Let}
+  | IN      {In}
+  | IF      {If}
+  | BRANCH  {Branch}
+  | FUNC    {Func}
+  | PARAM   {Param}
+  | EVAL    {Eval}
 
 operand:
   | STDOUT {Stdout}

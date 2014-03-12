@@ -1,26 +1,29 @@
 module Operator = struct
   type t = 
-    | Add| Sub | Mul | Div | Equal | Or | And
+    | Add| Sub | Mul | Div | Or | And
+    | Lesser | Greater | Equal
     | Print
     | Seq | Let | In | If | Branch
     | Func | Param | Eval
   let to_string = function
-    | Add    -> "+"
-    | Sub    -> "-"
-    | Mul    -> "*"
-    | Div    -> "/"
-    | Equal  -> "="
-    | Or     -> "or"
-    | And    -> "and"
-    | Print  -> "print"
-    | Seq    -> "seq"
-    | Let    -> "let"
-    | In     -> "in"
-    | If     -> "if"
-    | Branch -> "branch"
-    | Func   -> "func"
-    | Param  -> "param"
-    | Eval   -> "eval"
+    | Add     -> "+"
+    | Sub     -> "-"
+    | Mul     -> "*"
+    | Div     -> "/"
+    | Equal   -> "="
+    | Lesser  -> "<"
+    | Greater -> ">"
+    | Or      -> "or"
+    | And     -> "and"
+    | Print   -> "print"
+    | Seq     -> "seq"
+    | Let     -> "let"
+    | In      -> "in"
+    | If      -> "if"
+    | Branch  -> "branch"
+    | Func    -> "func"
+    | Param   -> "param"
+    | Eval    -> "eval"
   let print opr = print_string (to_string opr)
   let print_endline opr = print opr; print_newline ()  
 end

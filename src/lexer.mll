@@ -33,6 +33,9 @@ rule token = parse
   | '-' {increment_bol lexbuf 1; SUB}
   | '*' {increment_bol lexbuf 1; MUL}
   | '/' {increment_bol lexbuf 1; DIV}
+
+  | '<' {increment_bol lexbuf 1; LESSER}
+  | '>' {increment_bol lexbuf 1; GREATER}
   | '=' {increment_bol lexbuf 1; EQUAL}
   
   | "or"  {increment_bol lexbuf 2; OR}

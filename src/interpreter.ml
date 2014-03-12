@@ -127,6 +127,13 @@ let rec evaluate ast env = match ast with
     -> Error.raise_simple "Boolean operations only accept boolean values"
   | Operation (Equal, Operand x, Operand y)
     -> Operand (Bool (x = y))
+  | Operation (Lesser, Operand (Int x), Operand (Int y))
+    -> Operand (Bool (x < y))
+  | Operation (Greater, Operand (Int x), Operand (Int y))
+    -> Operand (Bool (x > y))
+  | Operation (Lesser, _, _)
+  | Operation (Greater, _, _)
+    -> Error.raise_simple "Comparison operators can only be used between integer values"
 
 (** Interprets the given [ast]. *)
 let run ast =
