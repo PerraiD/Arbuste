@@ -23,7 +23,7 @@ let rec params_to_list = function
   | Operation (Param, Operand opd, next) -> (Operand opd)::(params_to_list next)
   | ast -> Error.raise_simple "Param definition error"
 
-(** Interprets the given [ast] with the given environment. *)
+(** Interprets the given [ast] with the given [env]ironment. *)
 let rec evaluate ast env = match ast with
   | Operand (Ident (i, _))
     -> Symbols.find env i
@@ -55,7 +55,7 @@ let rec evaluate ast env = match ast with
            let params =  params_to_list (Operation (Param, p, next)) in
            let func_env = Symbols.make_env idents params in
            evaluate f func_env
-         else Error.raise_simple ("Unknown function " ^ i)
+         else Error.raise_positioned ("Unknown function " ^ i) pos
   | Operation (Eval, _, _)
     -> Error.raise_simple "Invalid eval ... param ... construction"
 
