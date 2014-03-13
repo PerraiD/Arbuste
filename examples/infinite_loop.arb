@@ -1,0 +1,21 @@
+in
+  let
+    count
+    func
+      param
+        x
+        end
+      seq
+        print
+          stdout
+          "loop\n"
+      eval
+        count
+        param
+          1
+          end
+  eval
+    count
+    param
+      1
+      end
