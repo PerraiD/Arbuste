@@ -21,7 +21,7 @@ let print_operand opn env = match opn with
 let rec params_to_list = function
   | Operand End -> []
   | Operation (Param, Operand opd, next) -> (Operand opd)::(params_to_list next)
-  | ast -> Error.raise_simple "Param definition error"
+  | _ -> Error.raise_simple "Param definition error"
 
 (** Interprets the given [ast] with the given [env]ironment. *)
 let rec evaluate ast env = match ast with
