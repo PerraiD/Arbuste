@@ -39,6 +39,9 @@ let rec evaluate ast env = match ast with
     -> if Symbols.mem env id then Error.warn_shadowed id pos;
        let params = params_to_list p in
        evaluate op (Symbols.add_fun env id f params)
+  | Operation (In, Operation (Let, Operand (Ident (id, pos)), opn), op)
+    -> let opn_result = evaluate opn env in
+       evaluate  (Operation (In, Operation (Let, Operand (Ident (id, pos)), opn_result), op)) env
   | Operation (In, _, _)
   | Operation (Let, _, _)
     -> Error.raise_simple "Invalid in ... let ... construction"

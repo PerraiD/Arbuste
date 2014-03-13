@@ -1,0 +1,9 @@
+in
+  let
+    x
+    +
+      1
+      2
+   
+  print stdout x
+  
