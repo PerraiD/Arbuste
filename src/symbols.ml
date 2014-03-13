@@ -25,10 +25,14 @@ let add_fun env key (value:Ast.t) params =
       (key,(value, params)) :: l
     else (key, (value, params)) :: env
 
-let add env key (value : Ast.t) = add_fun env key value []
+let add env key (value:Ast.t) = add_fun env key value []
 
-let find env key = fst (List.assoc key env)
+let find env key =
+  try fst (List.assoc key env)
+  with Not_found -> Error.raise_simple ("Cound not find identifier " ^ key)
 
-let find_func env key = List.assoc key env
+let find_func env key =
+  try List.assoc key env
+  with Not_found -> Error.raise_simple ("Cound not find identifier " ^ key)
   
 
