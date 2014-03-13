@@ -54,7 +54,7 @@ let rec evaluate ast env = match ast with
            let (f, idents) = Symbols.find_func env i in
            let params =  params_to_list (Operation (Param, p, next)) in
            let func_env = Symbols.make_env idents params in
-           evaluate f func_env
+           evaluate f (Symbols.add_fun func_env i f idents)
          else Error.raise_positioned ("Unknown function " ^ i) pos
   | Operation (Eval, _, _)
     -> Error.raise_simple "Invalid eval ... param ... construction"
