@@ -5,36 +5,44 @@ in
       param
         n
         end
-    if
-      <
-        n
-        2
-      branch
-        1
-        +
-          eval
-            fibo
-              param
+      if
+        <
+          n
+          2
+        branch
+          1
+          +
+            in
+              let
+                a
                 -
                   n
                   2
-                end
-          eval
-            fibo
-              param
+              eval
+                fibo
+                param
+                  a
+                  end
+            in
+              let
+                b
                 -
                   n
                   1
-                end
-  seq
+              eval
+                fibo
+                param
+                  b
+                  end
+  seq 
     print
       stdout
       eval
         fibo
-          param
-            4
-            end
+        param
+          4
+          end
     print
       stdout
-      "\n" 
+      "\n"
  
