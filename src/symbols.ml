@@ -29,10 +29,10 @@ let add env key (value:Ast.t) = add_fun env key value []
 
 let find env key =
   try fst (List.assoc key env)
-  with Not_found -> Error.raise_simple ("Cound not find identifier " ^ key)
+  with Not_found -> Error.raise_simple ("Could not find identifier " ^ key)
 
 let find_func env key =
   try List.assoc key env
-  with Not_found -> Error.raise_simple ("Cound not find identifier " ^ key)
+  with Not_found -> Error.raise_simple ("Could not find identifier " ^ key)
   
 
