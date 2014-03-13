@@ -61,3 +61,6 @@ let print ast =
         print' (tab ^ "  ", z)
   in
   print' ("", ast)
+
+(** Prints AST list [l]. *)
+let print_list l = List.iter print l
