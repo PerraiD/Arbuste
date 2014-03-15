@@ -26,9 +26,9 @@ let rec params_to_list = function
 (** Interprets the given [ast] with the given [env]ironment. *)
 let rec evaluate ast env = match ast with
   | Operand (Ident (i, _))
-    -> Symbols.find env i
+    -> (Symbols.find env i), env
   | Operand _ as leaf
-    -> leaf
+    -> leaf, env
 
   (* Variable assignement *)
 
@@ -38,10 +38,10 @@ let rec evaluate ast env = match ast with
   | Operation (In, Operation (Let, Operand (Ident (id, pos)), Operation (Func, p, f)), op)
     -> if Symbols.mem env id then Error.warn_shadowed id pos;
        let params = params_to_list p in
-       evaluate op (Symbols.add_fun env id f params)
+       evaluate op (Symbols.add_fun env id f params)      
   | Operation (In, Operation (Let, Operand (Ident (id, pos)), opn), op)
-    -> let opn_result = evaluate opn env in
-       evaluate  (Operation (In, Operation (Let, Operand (Ident (id, pos)), opn_result), op)) env
+    -> let opn_result, new_env = evaluate opn env in
+       evaluate  (Operation (In, Operation (Let, Operand (Ident (id, pos)), opn_result), op)) new_env
   | Operation (In, _, _)
   | Operation (Let, _, _)
     -> Error.raise_simple "Invalid in ... let ... construction"
@@ -66,8 +66,8 @@ let rec evaluate ast env = match ast with
 
   | Operation (If, cond, Operation (Branch, t, f))
     -> begin match evaluate cond env with
-         | Operand (Bool true)  -> evaluate t env
-         | Operand (Bool false) -> evaluate f env
+         | (Operand (Bool true)), _  -> evaluate t env
+         | (Operand (Bool false)), _ -> evaluate f env
          | _ -> Error.raise_simple "Condition must be a boolean value"
        end
   | Operation (If, _, _)
@@ -77,16 +77,16 @@ let rec evaluate ast env = match ast with
   (* Reduction rules *)
 
   | Operation (opr, (Operation (o, x, y)), opd)
-    -> let in_eval = evaluate (Operation (o, x, y)) env in
+    -> let in_eval, _ = evaluate (Operation (o, x, y)) env in
        evaluate (Operation (opr, in_eval, opd)) env
   | Operation (opr, (Operand (Ident (i, p))), opd)
-    -> let in_eval = evaluate (Operand (Ident (i, p))) env in
+    -> let in_eval, _ = evaluate (Operand (Ident (i, p))) env in
        evaluate (Operation (opr, in_eval, opd)) env
   | Operation (opr, opd, (Operation (o, x, y)))
-    -> let in_eval = evaluate (Operation (o, x, y)) env in
+    -> let in_eval, _ = evaluate (Operation (o, x, y)) env in
        evaluate (Operation (opr, opd, in_eval)) env
   | Operation (opr, opd, Operand (Ident (i, p)))
-    -> let in_eval = evaluate (Operand (Ident (i, p))) env in
+    -> let in_eval, _ = evaluate (Operand (Ident (i, p))) env in
        evaluate (Operation (opr, opd, in_eval)) env
 
   (* Sequence *)
@@ -99,20 +99,20 @@ let rec evaluate ast env = match ast with
   (* Print *)
 
   | Operation (Print, Operand Stdout, v)
-    -> print_operand v env; Operand Void        
+    -> print_operand v env; (Operand Void), env  
   | Operation (Print, _, _)
     -> Error.raise_simple "Print error"
    
   (* Arithmetic operations *)
 
   | Operation (Add, Operand (Int x1), Operand (Int x2))
-    -> Operand (Int (x1 + x2))
+    -> (Operand (Int (x1 + x2))), env
   | Operation (Sub, Operand (Int x1), Operand (Int x2))
-    -> Operand (Int (x1 - x2))
+    -> (Operand (Int (x1 - x2))), env
   | Operation (Mul, Operand (Int x1), Operand (Int x2))
-    -> Operand (Int (x1 * x2))
+    -> (Operand (Int (x1 * x2))), env
   | Operation (Div, Operand (Int x1), Operand (Int x2))
-    -> Operand (Int (x1 / x2))
+    -> (Operand (Int (x1 / x2))), env
   | Operation (Add, _, _)
   | Operation (Sub, _, _)
   | Operation (Mul, _, _)
@@ -122,18 +122,18 @@ let rec evaluate ast env = match ast with
   (* Boolean operations *)
 
   | Operation (Or, Operand (Bool x), Operand (Bool y))
-    -> Operand (Bool (x || y))
+    -> (Operand (Bool (x || y))), env
   | Operation (And, Operand (Bool x), Operand (Bool y))
-    -> Operand (Bool (x && y))
+    -> (Operand (Bool (x && y))), env
   | Operation (Or, _, _)
   | Operation (And, _, _)
     -> Error.raise_simple "Boolean operations only accept boolean values"
   | Operation (Equal, Operand x, Operand y)
-    -> Operand (Bool (x = y))
+    -> (Operand (Bool (x = y))), env
   | Operation (Lesser, Operand (Int x), Operand (Int y))
-    -> Operand (Bool (x < y))
+    -> (Operand (Bool (x < y))), env
   | Operation (Greater, Operand (Int x), Operand (Int y))
-    -> Operand (Bool (x > y))
+    -> (Operand (Bool (x > y))), env
   | Operation (Lesser, _, _)
   | Operation (Greater, _, _)
     -> Error.raise_simple "Comparison operators can only be used between integer values"
@@ -142,5 +142,5 @@ let rec evaluate ast env = match ast with
 let run ast =
   let env = Symbols.create () in
   match evaluate ast env with
-    | Operand Void -> ()
+    | (Operand Void), _ -> ()
     | _ -> Error.raise_simple "The program should return void"
