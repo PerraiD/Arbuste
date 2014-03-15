@@ -8,6 +8,13 @@ type t = (string * symbol) list
 (** Creates a new environment. *)
 let create () = []
 
+(** Prints an [env]ironment. *)
+let print env =
+  let f = function
+    | (k, (v, [])) -> Printf.printf "var: %s = %s\n" k (Ast.to_string v)
+    | (k, (v, p)) -> Printf.printf "func: %s()\n" k in
+  List.iter f env
+
 (** Creates an environment with the given identifiers associated to the given
     values. *)
 let make_env idents values =
@@ -16,8 +23,7 @@ let make_env idents values =
     | _ -> Error.raise_simple "Bad arguments"
   in
   List.map2 f idents values
-  
-
+ 
 (** Tells whether [key] belongs to [env]. *)
 let mem env key = List.mem_assoc key env 
 
@@ -41,5 +47,3 @@ let find env key =
 let find_func env key =
   try List.assoc key env
   with Not_found -> Error.raise_simple ("Could not find identifier " ^ key)
-  
-

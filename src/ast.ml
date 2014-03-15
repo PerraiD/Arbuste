@@ -51,6 +51,11 @@ end
 
 type t = Operand of Operand.t | Operation of Operator.t * t * t
 
+(** Gets a string from an ast. *)
+let to_string = function
+  | Operand opd -> Operand.to_string opd
+  | Operation (opn, _, _) -> Operator.to_string opn
+
 (** Prints the [ast] with only one operator or operand per line. *)
 let print ast = 
   let rec print' = function
