@@ -19,3 +19,5 @@ let print = function
 let warn_shadowed id p =
    Printf.eprintf "Warning line %d character %d: previous definition of %s is shadowed\n"
      p.pos_lnum (p.pos_bol + 1) id
+
+let warn s = Printf.eprintf s
