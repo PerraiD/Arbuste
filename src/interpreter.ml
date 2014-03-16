@@ -18,10 +18,24 @@ let print_operand opn env = match opn with
     end
   | _ -> Error.raise_simple "Print error, invalid parameter"
 
-let rec params_to_list = function
+let rec get_params_idents = function
   | Operand End -> []
-  | Operation (Param, Operand opd, next) -> (Operand opd)::(params_to_list next)
+  | Operation (Param, Operand opd, next)
+    -> (Operand opd)::(get_params_idents next)
   | _ -> Error.raise_simple "Param definition error"
+
+let rec get_params_values plist env = match plist with
+  | Operand End -> []
+  | Operation (Param, Operand (Ident (i, _)), next)
+    -> let opd = Symbols.find env i in
+       opd::(get_params_values next env)
+  | Operation (Param, Operand opd, next)
+    -> (Operand opd)::(get_params_values next env)
+  | _ -> Error.raise_simple "Param definition error"
+
+let warn_on_ignore = function
+  | Operand Void -> ()
+  | _ -> Error.warn "Ignored value"
 
 (** Interprets the given [ast] with the given [env]ironment. *)
 let rec evaluate ast env = match ast with
@@ -30,19 +44,30 @@ let rec evaluate ast env = match ast with
   | Operand _ as leaf
     -> leaf, env
 
+ (* Sequences *)
+
+  | Operation (In, Operand Void, opn)
+  | Operation (Seq, Operand Void, opn) 
+    -> evaluate opn env
+  | Operation (In, left, right)
+    -> let eval, left_env = evaluate left env in
+       warn_on_ignore eval;
+       evaluate right left_env
+  | Operation (Seq, left, right)
+    -> let eval, _ = evaluate left env in
+       warn_on_ignore eval;
+       evaluate right env
+
   (* Variable assignement *)
 
-  | Operation (In, Operation (Let, Operand (Ident (id, p)), Operand x), op)
-    -> if Symbols.mem env id then Error.warn_shadowed id p;
-       evaluate op (Symbols.add env id (Operand x))
-  | Operation (In, Operation (Let, Operand (Ident (id, pos)), Operation (Func, p, f)), op)
+  | Operation (Let, Operand (Ident (id, pos)), Operation (Func, p, f))
     -> if Symbols.mem env id then Error.warn_shadowed id pos;
-       let params = params_to_list p in
-       evaluate op (Symbols.add_fun env id f params)      
-  | Operation (In, Operation (Let, Operand (Ident (id, pos)), opn), op)
-    -> let opn_result, new_env = evaluate opn env in
-       evaluate  (Operation (In, Operation (Let, Operand (Ident (id, pos)), opn_result), op)) new_env
-  | Operation (In, _, _)
+       let params = get_params_idents p in
+       (Operand Void), (Symbols.add_fun env id f params) 
+  | Operation (Let, Operand (Ident (id, p)), opn)
+    -> if Symbols.mem env id then Error.warn_shadowed id p;
+       let (eval, _) = evaluate opn env in
+       (Operand Void), (Symbols.add env id eval)     
   | Operation (Let, _, _)
     -> Error.raise_simple "Invalid in ... let ... construction"
   | Operation (Func, _, _)
@@ -55,7 +80,7 @@ let rec evaluate ast env = match ast with
     -> if Symbols.mem env i
          then
            let (f, idents) = Symbols.find_func env i in
-           let params =  params_to_list (Operation (Param, p, next)) in
+           let params =  get_params_values (Operation (Param, p, next)) env in
            let func_env = Symbols.make_env idents params in
            evaluate f (Symbols.add_fun func_env i f idents)
          else Error.raise_positioned ("Unknown function " ^ i) pos
@@ -88,13 +113,6 @@ let rec evaluate ast env = match ast with
   | Operation (opr, opd, Operand (Ident (i, p)))
     -> let in_eval, _ = evaluate (Operand (Ident (i, p))) env in
        evaluate (Operation (opr, opd, in_eval)) env
-
-  (* Sequence *)
-
-  | Operation (Seq, Operand Void, Operand x) 
-    -> evaluate (Operand x) env
-  | Operation (Seq, Operand _, _)
-    -> Error.raise_simple "Invalid seq ... construction"
 
   (* Print *)
 
