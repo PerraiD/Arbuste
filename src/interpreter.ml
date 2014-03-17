@@ -120,6 +120,11 @@ let rec evaluate ast env = match ast with
     -> print_operand v env; (Operand Void), env  
   | Operation (Print, _, _)
     -> Error.raise_simple "Print error"
+
+  (* String concatenation *)
+
+  | Operation (Add, Operand (String s1), Operand (String s2))
+    -> (Operand (String (s1 ^ s2))), env
    
   (* Arithmetic operations *)
 
@@ -135,7 +140,7 @@ let rec evaluate ast env = match ast with
   | Operation (Sub, _, _)
   | Operation (Mul, _, _)
   | Operation (Div, _, _)
-    -> Error.raise_simple "Arithmetic operations only accept integer values"
+    -> Ast.print ast; Error.raise_simple "Arithmetic operations only accept integer values"
 
   (* Boolean operations *)
 
