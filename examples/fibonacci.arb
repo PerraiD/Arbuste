@@ -4,7 +4,7 @@ in
     func
       param
         n
-        end
+        end_param
       if
         <
           n
@@ -22,7 +22,7 @@ in
                 fibo
                 param
                   a
-                  end
+                  end_param
             in
               let
                 b
@@ -33,7 +33,7 @@ in
                 fibo
                 param
                   b
-                  end
+                  end_param
   seq 
     print
       stdout
@@ -41,7 +41,7 @@ in
         fibo
         param
           4
-          end
+          end_param
     print
       stdout
       "\n"

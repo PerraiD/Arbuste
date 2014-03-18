@@ -2,20 +2,14 @@ in
   let
     count
     func
-      param
-        x
-        end
+      end_param
       seq
         print
           stdout
           "loop\n"
       eval
         count
-        param
-          1
-          end
+        end_param
   eval
     count
-    param
-      1
-      end
+    end_param

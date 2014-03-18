@@ -11,7 +11,7 @@
 %token BEGIN_PAR END_PAR
 %token PRINT STDOUT
 %token SEQ LET IN IF BRANCH
-%token FUNC PARAM END EVAL
+%token FUNC PARAM END_PARAM EVAL
 
 %token <int> INT
 %token <bool> BOOL
@@ -55,10 +55,10 @@ operator:
   | EVAL    {Eval}
 
 operand:
-  | STDOUT {Stdout}
-  | STRING {String $1}
-  | INT    {Int $1}
-  | BOOL   {Bool $1}
-  | IDENT  {Ident ($1, symbol_start_pos ())}
-  | END    {End}
+  | STDOUT       {Stdout}
+  | STRING       {String $1}
+  | INT          {Int $1}
+  | BOOL         {Bool $1}
+  | IDENT        {Ident ($1, symbol_start_pos ())}
+  | END_PARAM    {EndParam}
 ;

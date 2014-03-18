@@ -53,10 +53,10 @@ rule token = parse
   | "if"     {increment_bol lexbuf 2; IF}
   | "branch" {increment_bol lexbuf 6; BRANCH}
 
-  | "func"  {increment_bol lexbuf 4; FUNC}
-  | "param" {increment_bol lexbuf 5; PARAM}
-  | "eval"  {increment_bol lexbuf 4; EVAL}
-  | "end"   {increment_bol lexbuf 3; END}
+  | "func"      {increment_bol lexbuf 4; FUNC}
+  | "param"     {increment_bol lexbuf 5; PARAM}
+  | "eval"      {increment_bol lexbuf 4; EVAL}
+  | "end_param" {increment_bol lexbuf 3; END_PARAM}
 
   | "true"  {BOOL(true)}
   | "false" {BOOL(false)}

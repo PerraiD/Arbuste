@@ -6,7 +6,7 @@ in
         x
         param
           y
-          end
+          end_param
       +
         x
         y
@@ -19,5 +19,5 @@ in
           3
           param
             5
-            end
+            end_param
     print stdout "\n"

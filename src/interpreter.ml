@@ -19,13 +19,13 @@ let print_operand opn env = match opn with
   | _ -> Error.raise_simple "Print error, invalid parameter"
 
 let rec get_params_idents = function
-  | Operand End -> []
+  | Operand EndParam -> []
   | Operation (Param, Operand opd, next)
     -> (Operand opd)::(get_params_idents next)
   | _ -> Error.raise_simple "Param definition error"
 
 let rec get_params_values plist env = match plist with
-  | Operand End -> []
+  | Operand EndParam -> []
   | Operation (Param, Operand (Ident (i, _)), next)
     -> let opd = Symbols.find env i in
        opd::(get_params_values next env)
@@ -58,30 +58,39 @@ let rec evaluate ast env = match ast with
        warn_on_ignore eval;
        evaluate right env
 
-  (* Variable assignement *)
+  (* Function declaration *)
 
   | Operation (Let, Operand (Ident (id, pos)), Operation (Func, p, f))
     -> if Symbols.mem env id then Error.warn_shadowed id pos;
        let params = get_params_idents p in
-       (Operand Void), (Symbols.add_fun env id f params) 
+       (Operand Void), (Symbols.add_fun env id f params)
+  | Operation (Func, _, _)
+  | Operation (Param, _, _)
+    -> Error.raise_simple "Invalid func ... param ... construction"
+
+  (* Variable assignement *)
+
   | Operation (Let, Operand (Ident (id, p)), opn)
     -> if Symbols.mem env id then Error.warn_shadowed id p;
        let (eval, _) = evaluate opn env in
        (Operand Void), (Symbols.add env id eval)     
   | Operation (Let, _, _)
     -> Error.raise_simple "Invalid in ... let ... construction"
-  | Operation (Func, _, _)
-  | Operation (Param, _, _)
-    -> Error.raise_simple "Invalid func ... param ... construction"
 
   (* Function evaluation *)
-
-  | Operation (Eval, Operand (Ident (i, pos)), Operation (Param, p, next))
+(*
+  | Operation (Eval, Operand (Ident (i, pos)), Operand EndParam)
     -> if Symbols.mem env i
          then
            let (f, idents) = Symbols.find_func env i in
-           let params =  get_params_values (Operation (Param, p, next)) env in
-           let func_env = Symbols.make_env idents params in
+           evaluate f (Symbols.add_fun env i f idents)
+         else Error.raise_positioned ("Unknown function " ^ i) pos *)
+  | Operation (Eval, Operand (Ident (i, pos)), params)
+    -> if Symbols.mem env i
+         then
+           let (f, idents) = Symbols.find_func env i in
+           let p =  get_params_values params env in
+           let func_env = Symbols.make_env idents p in
            evaluate f (Symbols.add_fun func_env i f idents)
          else Error.raise_positioned ("Unknown function " ^ i) pos
   | Operation (Eval, _, _)

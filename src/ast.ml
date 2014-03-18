@@ -31,7 +31,7 @@ end
 module Operand = struct
   type t =
     | Void
-    | End
+    | EndParam
     | Stdout
     | String of string
     | Int of int
@@ -39,7 +39,7 @@ module Operand = struct
     | Ident of string * Lexing.position
   let to_string = function
     | Void         -> "void"
-    | End          -> "end"
+    | EndParam     -> "end_param"
     | Stdout       -> "stdout"
     | String x     -> x
     | Int x        -> string_of_int x
