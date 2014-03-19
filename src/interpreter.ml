@@ -78,13 +78,7 @@ let rec evaluate ast env = match ast with
     -> Error.raise_simple "Invalid in ... let ... construction"
 
   (* Function evaluation *)
-(*
-  | Operation (Eval, Operand (Ident (i, pos)), Operand EndParam)
-    -> if Symbols.mem env i
-         then
-           let (f, idents) = Symbols.find_func env i in
-           evaluate f (Symbols.add_fun env i f idents)
-         else Error.raise_positioned ("Unknown function " ^ i) pos *)
+
   | Operation (Eval, Operand (Ident (i, pos)), params)
     -> if Symbols.mem env i
          then
