@@ -2,7 +2,7 @@ open Ast
 open Ast.Operator
 open Ast.Operand
 
-let print_ident i env = match Symbols.find env i with
+let print_ident i env = match Environment.find env i with
   | Operand (String s) -> print_string s
   | Operand (Int i) -> print_int i
   | Operand (Bool b) -> print_string (string_of_bool b)
@@ -27,7 +27,7 @@ let rec get_params_idents = function
 let rec get_params_values plist env = match plist with
   | Operand EndParam -> []
   | Operation (Param, Operand (Ident (i, _)), next)
-    -> let opd = Symbols.find env i in
+    -> let opd = Environment.find env i in
        opd::(get_params_values next env)
   | Operation (Param, Operand opd, next)
     -> (Operand opd)::(get_params_values next env)
@@ -40,7 +40,7 @@ let warn_on_ignore = function
 (** Interprets the given [ast] with the given [env]ironment. *)
 let rec evaluate ast env = match ast with
   | Operand (Ident (i, _))
-    -> (Symbols.find env i), env
+    -> (Environment.find env i), env
   | Operand _ as leaf
     -> leaf, env
 
@@ -61,9 +61,9 @@ let rec evaluate ast env = match ast with
   (* Function declaration *)
 
   | Operation (Let, Operand (Ident (id, pos)), Operation (Func, p, f))
-    -> if Symbols.mem env id then Error.warn_shadowed id pos;
+    -> if Environment.mem env id then Error.warn_shadowed id pos;
        let params = get_params_idents p in
-       (Operand Void), (Symbols.add_fun env id f params)
+       (Operand Void), (Environment.add_fun env id f params)
   | Operation (Func, _, _)
   | Operation (Param, _, _)
     -> Error.raise_simple "Invalid func ... param ... construction"
@@ -71,21 +71,21 @@ let rec evaluate ast env = match ast with
   (* Variable assignement *)
 
   | Operation (Let, Operand (Ident (id, p)), opn)
-    -> if Symbols.mem env id then Error.warn_shadowed id p;
+    -> if Environment.mem env id then Error.warn_shadowed id p;
        let (eval, _) = evaluate opn env in
-       (Operand Void), (Symbols.add env id eval)     
+       (Operand Void), (Environment.add env id eval)     
   | Operation (Let, _, _)
     -> Error.raise_simple "Invalid in ... let ... construction"
 
   (* Function evaluation *)
 
   | Operation (Eval, Operand (Ident (i, pos)), params)
-    -> if Symbols.mem env i
+    -> if Environment.mem env i
          then
-           let (f, idents) = Symbols.find_func env i in
+           let (f, idents) = Environment.find_func env i in
            let p =  get_params_values params env in
-           let func_env = Symbols.make_env idents p in
-           evaluate f (Symbols.add_fun func_env i f idents)
+           let func_env = Environment.make_env idents p in
+           evaluate f (Environment.add_fun func_env i f idents)
          else Error.raise_positioned ("Unknown function " ^ i) pos
   | Operation (Eval, _, _)
     -> Error.raise_simple "Invalid eval ... param ... construction"
@@ -106,7 +106,7 @@ let rec evaluate ast env = match ast with
 
   | Operation (Read, Operand Stdin, Operand (Ident (i,_)))
     -> let s = input_line stdin in
-       let new_env = Symbols.add env i (Operand (String s)) in
+       let new_env = Environment.add env i (Operand (String s)) in
        (Operand Void), new_env  
   | Operation (Read, _, _)
     -> Error.raise_simple "Read error"
@@ -175,7 +175,7 @@ let rec evaluate ast env = match ast with
 
 (** Interprets the given [ast]. *)
 let run ast =
-  let env = Symbols.create () in
+  let env = Environment.create () in
   match evaluate ast env with
     | (Operand Void), _ -> ()
     | _ -> Error.raise_simple "The program should return void"
