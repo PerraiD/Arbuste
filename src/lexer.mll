@@ -60,11 +60,11 @@ rule token = parse
   | "eval"      {increment_bol lexbuf 4; EVAL}
   | "end_param" {increment_bol lexbuf 3; END_PARAM}
 
-  | "true"  {BOOL(true)}
-  | "false" {BOOL(false)}
+  | "true"  {BOOL true}
+  | "false" {BOOL false}
 
-  | integer as lxm  {increment_bol lexbuf (String.length lxm); INT(int_of_string lxm)}
-  | ident as lxm    {increment_bol lexbuf (String.length lxm); IDENT(lxm)}
+  | integer as lxm  {increment_bol lexbuf (String.length lxm); INT (int_of_string lxm)}
+  | ident as lxm    {increment_bol lexbuf (String.length lxm); IDENT lxm}
 
   | '"' {let buffer = Buffer.create 20 in string_value buffer lexbuf}
 
@@ -73,7 +73,7 @@ rule token = parse
   | _  as lxm {Error.raise_positioned ("Unrecognized character " ^ (string_of_char lxm)) lexbuf.lex_curr_p}
 
 and string_value buffer = parse
-  | '"' {STRING(Buffer.contents buffer)}
+  | '"' {STRING (Buffer.contents buffer)}
   | eof {Error.raise_simple "Unexpected end of file in a open string"}
 
   | "\\t"     { Buffer.add_char buffer '\t'; string_value buffer lexbuf }
