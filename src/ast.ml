@@ -2,7 +2,7 @@ module Operator = struct
   type t = 
     | Add| Sub | Mul | Div | Or | And
     | Lesser | Greater | Equal
-    | Print
+    | Print | Read
     | Seq | Let | In | If | Branch
     | Func | Param | Eval
   let to_string = function
@@ -16,6 +16,7 @@ module Operator = struct
     | Or      -> "or"
     | And     -> "and"
     | Print   -> "print"
+    | Read    -> "read"
     | Seq     -> "seq"
     | Let     -> "let"
     | In      -> "in"
@@ -33,6 +34,7 @@ module Operand = struct
     | Void
     | EndParam
     | Stdout
+    | Stdin
     | String of string
     | Int of int
     | Bool of bool
@@ -41,6 +43,7 @@ module Operand = struct
     | Void         -> "void"
     | EndParam     -> "end_param"
     | Stdout       -> "stdout"
+    | Stdin        -> "stdin"
     | String x     -> x
     | Int x        -> string_of_int x
     | Bool b       -> string_of_bool b

@@ -1,0 +1,10 @@
+/* Prints to stdout the string read on stdin. */
+in
+  read
+    stdin
+    str
+  print
+    stdout
+    +
+      str
+      "\n"

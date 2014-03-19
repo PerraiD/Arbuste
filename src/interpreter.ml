@@ -102,6 +102,15 @@ let rec evaluate ast env = match ast with
   | Operation (Branch, _, _)
     -> Error.raise_simple "Invalid if ... branch ... construction"
 
+  (* Read a string *)
+
+  | Operation (Read, Operand Stdin, Operand (Ident (i,_)))
+    -> let s = input_line stdin in
+       let new_env = Symbols.add env i (Operand (String s)) in
+       (Operand Void), new_env  
+  | Operation (Read, _, _)
+    -> Error.raise_simple "Read error"
+
   (* Reduction rules *)
 
   | Operation (opr, (Operation (o, x, y)), opd)
@@ -117,7 +126,7 @@ let rec evaluate ast env = match ast with
     -> let in_eval, _ = evaluate (Operand (Ident (i, p))) env in
        evaluate (Operation (opr, opd, in_eval)) env
 
-  (* Print *)
+  (* Print a string *)
 
   | Operation (Print, Operand Stdout, v)
     -> print_operand v env; (Operand Void), env  

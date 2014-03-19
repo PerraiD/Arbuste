@@ -45,7 +45,9 @@ rule token = parse
   | ')' {increment_bol lexbuf 1; END_PAR}
   
   | "print"  {increment_bol lexbuf 5; PRINT}
+  | "read"   {increment_bol lexbuf 4; READ}
   | "stdout" {increment_bol lexbuf 6; STDOUT}
+  | "stdin"  {increment_bol lexbuf 5; STDIN}
   
   | "seq"    {increment_bol lexbuf 3; SEQ}
   | "let"    {increment_bol lexbuf 3; LET}

@@ -9,7 +9,7 @@
 %token OR AND
 %token LESSER GREATER EQUAL
 %token BEGIN_PAR END_PAR
-%token PRINT STDOUT
+%token PRINT READ STDOUT STDIN
 %token SEQ LET IN IF BRANCH
 %token FUNC PARAM END_PARAM EVAL
 
@@ -45,6 +45,7 @@ operator:
   | OR      {Or}
   | AND     {And}
   | PRINT   {Print}
+  | READ    {Read}
   | SEQ     {Seq}
   | LET     {Let}
   | IN      {In}
@@ -56,6 +57,7 @@ operator:
 
 operand:
   | STDOUT       {Stdout}
+  | STDIN        {Stdin}
   | STRING       {String $1}
   | INT          {Int $1}
   | BOOL         {Bool $1}
