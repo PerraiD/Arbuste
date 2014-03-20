@@ -34,15 +34,25 @@ in
                 param
                   b
                   end_param
-  seq 
-    print
-      stdout
-      eval
-        fibo
-        param
-          25
-          end_param
-    print
-      stdout
-      "\n"
+  seq
+    in
+      in
+        read
+          stdin
+          input
+        let
+          n
+          cast
+            int
+            input          
+      print
+        stdout
+        eval
+          fibo
+          param
+            n
+            end_param
+      print
+        stdout
+        "\n"
  
