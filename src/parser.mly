@@ -12,6 +12,7 @@
 %token PRINT READ STDOUT STDIN
 %token SEQ LET IN IF BRANCH
 %token FUNC PARAM END_PARAM EVAL
+%token CAST TO_STRING TO_INT TO_BOOL
 
 %token <int> INT
 %token <bool> BOOL
@@ -54,6 +55,7 @@ operator:
   | FUNC    {Func}
   | PARAM   {Param}
   | EVAL    {Eval}
+  | CAST    {Cast}
 
 operand:
   | STDOUT       {Stdout}
@@ -63,4 +65,7 @@ operand:
   | BOOL         {Bool $1}
   | IDENT        {Ident ($1, symbol_start_pos ())}
   | END_PARAM    {EndParam}
+  | TO_STRING    {ToString}
+  | TO_INT       {ToInt}
+  | TO_BOOL      {ToBool}
 ;

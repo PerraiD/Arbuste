@@ -5,6 +5,7 @@ module Operator = struct
     | Print | Read
     | Seq | Let | In | If | Branch
     | Func | Param | Eval
+    | Cast
   let to_string = function
     | Add     -> "+"
     | Sub     -> "-"
@@ -25,6 +26,7 @@ module Operator = struct
     | Func    -> "func"
     | Param   -> "param"
     | Eval    -> "eval"
+    | Cast    -> "cast"
   let print opr = print_string (to_string opr)
   let print_endline opr = print opr; print_newline ()  
 end
@@ -35,6 +37,9 @@ module Operand = struct
     | EndParam
     | Stdout
     | Stdin
+    | ToString
+    | ToInt
+    | ToBool
     | String of string
     | Int of int
     | Bool of bool
@@ -44,6 +49,9 @@ module Operand = struct
     | EndParam     -> "end_param"
     | Stdout       -> "stdout"
     | Stdin        -> "stdin"
+    | ToString     -> "string"
+    | ToInt        -> "int"
+    | ToBool       -> "Bool"
     | String x     -> x
     | Int x        -> string_of_int x
     | Bool b       -> string_of_bool b

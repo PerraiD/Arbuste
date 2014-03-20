@@ -63,6 +63,11 @@ rule token = parse
   | "true"  {BOOL true}
   | "false" {BOOL false}
 
+  | "cast"   {CAST}
+  | "string" {TO_STRING}
+  | "int"    {TO_INT}
+  | "bool"   {TO_BOOL}
+
   | integer as lxm  {increment_bol lexbuf (String.length lxm); INT (int_of_string lxm)}
   | ident as lxm    {increment_bol lexbuf (String.length lxm); IDENT lxm}
 

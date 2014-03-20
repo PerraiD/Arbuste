@@ -173,6 +173,42 @@ let rec evaluate ast env = match ast with
   | Operation (Greater, _, _)
     -> Error.raise_simple "Comparison operators can only be used between integer values"
 
+  (* Type casting *)
+
+  | Operation (Cast, Operand ToString, Operand (String s))
+    -> (Operand (String s)), env
+  | Operation (Cast, Operand ToString, Operand (Int i))
+    -> (Operand (String (string_of_int i))), env
+  | Operation (Cast, Operand ToString, Operand (Bool b))
+    -> (Operand (String (string_of_bool b))), env
+  | Operation (Cast, Operand ToInt, Operand (String s))
+    -> begin
+         try let i = int_of_string s in (Operand (Int i)), env
+         with _ -> Error.raise_simple ("Cannot convert " ^ s ^ " to an int")
+       end
+  | Operation (Cast, Operand ToInt, Operand (Int i))
+    -> (Operand (Int i)), env
+  | Operation (Cast, Operand ToInt, Operand (Bool b))
+    -> if b
+         then (Operand (Int 1)), env
+         else (Operand (Int 0)), env
+  | Operation (Cast, Operand ToBool, Operand (String s))
+    -> begin
+         try let b = bool_of_string s in (Operand (Bool b)), env
+         with _ -> Error.raise_simple ("Cannot convert " ^ s ^ " to a bool")
+       end
+  | Operation (Cast, Operand ToBool, Operand (Int i))
+    -> begin match i with
+         | 0 -> (Operand (Bool false)), env
+         | 1 -> (Operand (Bool true)), env
+         | _ -> Error.raise_simple ("Cannot convert " ^ (string_of_int i)
+                                  ^ "to a bool")
+       end
+  | Operation (Cast, Operand ToBool, Operand (Bool b))
+    -> (Operand (Bool b)), env
+  | Operation (Cast, _, _)
+    -> Error.raise_simple "Cast error"
+
 (** Interprets the given [ast]. *)
 let run ast =
   let env = Environment.create () in

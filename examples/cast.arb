@@ -1,0 +1,19 @@
+in
+  read
+    stdin
+    intString
+  print
+    stdout
+    + /* string concatenation */
+      "The result is: "
+      + /* string concatenation*/
+        cast
+          string
+          + /* addition */
+            1
+            cast
+              int
+              intString
+        "\n"
+                  
+    
