@@ -4,5 +4,10 @@ in
     +
       1
       2  
-  print stdout x
-  
+  print
+    stdout
+    +
+      cast
+        string
+        x
+    "\n"

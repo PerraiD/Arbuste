@@ -3,7 +3,7 @@ in
     condition
     true
   seq
-    print stdout false
+    print stdout cast string false
     if
       and
         condition

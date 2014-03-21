@@ -5,13 +5,15 @@ seq
       4
     print
       stdout
-      + 
-        a
-        seq
-          print
-            stdout
-            "4 + 3 = "
-          3
+      cast
+        string
+          + 
+            a
+            seq
+              print
+                stdout
+                "4 + 3 = "
+              3
   print
     stdout
     "\n"

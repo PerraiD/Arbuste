@@ -13,11 +13,13 @@ in
   seq
     print
       stdout
-      eval
-        plus
-        param
-          3
+      cast
+        string
+        eval
+          plus
           param
-            5
-            end_param
+            3
+            param
+              5
+              end_param
     print stdout "\n"

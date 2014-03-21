@@ -2,22 +2,6 @@ open Ast
 open Ast.Operator
 open Ast.Operand
 
-let print_ident i env = match Environment.find env i with
-  | Operand (String s) -> print_string s
-  | Operand (Int i) -> print_int i
-  | Operand (Bool b) -> print_string (string_of_bool b)
-  | _ -> Error.raise_simple "Print error, invalid parameter"
-
-let print_operand opn env = match opn with
-  | Operand opd -> begin match opd with
-    | String s -> print_string s
-    | Int i -> print_int i
-    | Bool b -> print_string (string_of_bool b)
-    | Ident (i, _) -> print_ident i env
-    | _ -> Error.raise_simple "Print error, invalid parameter"
-    end
-  | _ -> Error.raise_simple "Print error, invalid parameter"
-
 let rec get_params_idents = function
   | Operand EndParam -> []
   | Operation (Param, Operand opd, next)
@@ -128,8 +112,8 @@ let rec evaluate ast env = match ast with
 
   (* Print a string *)
 
-  | Operation (Print, Operand Stdout, v)
-    -> print_operand v env; (Operand Void), env  
+  | Operation (Print, Operand Stdout, Operand (String s))
+    -> print_string s; (Operand Void), env  
   | Operation (Print, _, _)
     -> Error.raise_simple "Print error"
 

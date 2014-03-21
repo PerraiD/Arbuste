@@ -47,11 +47,13 @@ in
             input          
       print
         stdout
-        eval
-          fibo
-          param
-            n
-            end_param
+        cast
+          string
+          eval
+            fibo
+            param
+              n
+              end_param
       print
         stdout
         "\n"
