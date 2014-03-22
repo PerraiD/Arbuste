@@ -26,14 +26,14 @@
 
 main:
   | operation EOF {$1}
-  | EOF {Operand Void}
-
+  | EOF           {Operand Void}
 
 operation:
-  | BEGIN_PAR operation END_PAR {$2}
+  | BEGIN_PAR operation END_PAR  {$2}
   | operator operation operation {Operation ($1, $2, $3)}
-  | operand {Operand $1}
-
+  | operand                      {Operand $1}
+  | error                        {Error.raise_positioned
+                                  "Missing argument" (symbol_start_pos ())}
 
 operator:
   | ADD     {Add}
