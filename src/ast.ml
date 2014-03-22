@@ -72,9 +72,9 @@ let print ast =
   let rec print' = function
     | (tab, Operand x) -> print_string tab; Operand.print_endline x
     | (tab, Operation (x, y, z)) ->
-        print_string tab; Operator.print_endline x;
-        print' (tab ^ "  ", y);
-        print' (tab ^ "  ", z)
+      print_string tab; Operator.print_endline x;
+      print' (tab ^ "  ", y);
+      print' (tab ^ "  ", z)
   in
   print' ("", ast)
 
