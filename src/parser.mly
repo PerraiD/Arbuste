@@ -27,13 +27,13 @@
 main:
   | operation EOF {$1}
   | EOF {Operand Void}
-;
+
 
 operation:
   | BEGIN_PAR operation END_PAR {$2}
   | operator operation operation {Operation ($1, $2, $3)}
   | operand {Operand $1}
-;
+
 
 operator:
   | ADD     {Add}
@@ -68,4 +68,3 @@ operand:
   | TO_STRING    {ToString}
   | TO_INT       {ToInt}
   | TO_BOOL      {ToBool}
-;
