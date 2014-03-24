@@ -28,11 +28,8 @@ let rec evaluate ast env = match ast with
   | Operand _ as leaf
     -> leaf, env
 
- (* Sequences *)
+  (* Sequences *)
 
-  | Operation (In, Operand Void, opn)
-  | Operation (Seq, Operand Void, opn) 
-    -> evaluate opn env
   | Operation (In, left, right)
     -> let eval, left_env = evaluate left env in
        warn_on_ignore eval;
