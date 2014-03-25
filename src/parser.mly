@@ -63,7 +63,7 @@ operand:
   | STRING       {String $1}
   | INT          {Int $1}
   | BOOL         {Bool $1}
-  | IDENT        {Ident ($1, symbol_start_pos ())}
+  | IDENT        {Ident $1}
   | END_PARAM    {EndParam}
   | TO_STRING    {ToString}
   | TO_INT       {ToInt}

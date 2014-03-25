@@ -21,7 +21,7 @@ let print env =
     values. *)
 let make_env idents values =
   let f x y = match x.contents with
-    | Operand (Ident (i, _)) -> (i, (y, []))
+    | Operand (Ident i) -> (i, (y, []))
     | _ -> Error.raise_simple "Bad arguments"
   in
   List.map2 f idents values

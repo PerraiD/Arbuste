@@ -13,7 +13,7 @@ let rec get_params_idents (ast:Ast.t) = match ast.contents with
 
 let rec get_params_values plist env = match plist.contents with
   | Operand EndParam -> []
-  | Operation (Param, {contents = Operand (Ident (i, _))}, next)
+  | Operation (Param, {contents = Operand (Ident i)}, next)
     -> let opd = Environment.find env i in
        opd :: (get_params_values next env)
   | Operation (Param, {contents = Operand opd; position = p}, next)
@@ -26,7 +26,7 @@ let warn_on_ignore ast = match ast.contents with
 
 (** Interprets the given [ast] with the given [env]ironment. *)
 let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
-  | Operand (Ident (i, _))
+  | Operand (Ident i)
     -> (Environment.find env i), env
   | Operand _ as leaf
     -> {ast with contents = leaf}, env
@@ -44,7 +44,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
 
   (* Function declaration *)
 
-  | Operation (Let, {contents = Operand (Ident (id, pos))}, {contents = Operation (Func, p, f)})
+  | Operation (Let, {contents = Operand (Ident id); position = pos}, {contents = Operation (Func, p, f)})
     -> if Environment.mem env id then Error.warn_shadowed id pos;
        let params = get_params_idents p in
        {ast with contents = Operand Void}, (Environment.add_fun env id f params)
@@ -54,7 +54,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
 
   (* Variable assignement *)
 
-  | Operation (Let, {contents = Operand (Ident (id, p))}, opn)
+  | Operation (Let, {contents = Operand (Ident id); position = p}, opn)
     -> if Environment.mem env id then Error.warn_shadowed id p;
        let (eval, _) = evaluate opn env in
        {ast with contents = Operand Void}, (Environment.add env id eval)     
@@ -63,7 +63,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
 
   (* Function evaluation *)
 
-  | Operation (Eval, {contents = Operand (Ident (i, pos))}, params)
+  | Operation (Eval, {contents = Operand (Ident i); position = pos}, params)
     -> if Environment.mem env i
          then
            let (f, idents) = Environment.find_func env i in
@@ -89,7 +89,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
 
   (* Read a string *)
 
-  | Operation (Read, {contents = Operand Stdin}, {contents = Operand (Ident (i,_)); position = p})
+  | Operation (Read, {contents = Operand Stdin}, {contents = Operand (Ident i); position = p})
     -> let s = input_line stdin in
        let new_env = Environment.add env i {contents = Operand (String s); position = p} in
        {ast with contents = Operand Void}, new_env  
@@ -101,14 +101,14 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
   | Operation (opr, {contents = Operation (o, x, y); position = p}, opd)
     -> let in_eval, _ = evaluate {contents = Operation (o, x, y); position = p} env in
        evaluate {ast with contents = Operation (opr, in_eval, opd)} env
-  | Operation (opr, {contents = Operand (Ident (i, pos)); position = p}, opd)
-    -> let in_eval, _ = evaluate {contents = Operand (Ident (i, pos)); position = p} env in
+  | Operation (opr, {contents = Operand (Ident i); position = p}, opd)
+    -> let in_eval, _ = evaluate {contents = Operand (Ident i); position = p} env in
        evaluate {ast with contents = Operation (opr, in_eval, opd)} env
   | Operation (opr, opd, {contents = Operation (o, x, y); position = p})
     -> let in_eval, _ = evaluate {contents = Operation (o, x, y); position = p} env in
        evaluate { ast with contents = Operation (opr, opd, in_eval)} env
-  | Operation (opr, opd, {contents = Operand (Ident (i, pos)); position = p})
-    -> let in_eval, _ = evaluate {contents = Operand (Ident (i, pos)); position = p} env in
+  | Operation (opr, opd, {contents = Operand (Ident i); position = p})
+    -> let in_eval, _ = evaluate {contents = Operand (Ident i); position = p} env in
        evaluate {ast with contents = Operation (opr, opd, in_eval)} env
 
   (* Print a string *)

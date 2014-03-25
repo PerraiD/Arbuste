@@ -43,19 +43,19 @@ module Operand = struct
     | String of string
     | Int of int
     | Bool of bool
-    | Ident of string * Lexing.position
+    | Ident of string
   let to_string = function
-    | Void         -> "void"
-    | EndParam     -> "end_param"
-    | Stdout       -> "stdout"
-    | Stdin        -> "stdin"
-    | ToString     -> "string"
-    | ToInt        -> "int"
-    | ToBool       -> "Bool"
-    | String x     -> x
-    | Int x        -> string_of_int x
-    | Bool b       -> string_of_bool b
-    | Ident (x, _) -> x
+    | Void     -> "void"
+    | EndParam -> "end_param"
+    | Stdout   -> "stdout"
+    | Stdin    -> "stdin"
+    | ToString -> "string"
+    | ToInt    -> "int"
+    | ToBool   -> "Bool"
+    | String x -> x
+    | Int x    -> string_of_int x
+    | Bool b   -> string_of_bool b
+    | Ident x  -> x
   let print opd = print_string (to_string opd)
   let print_endline opd = print opd; print_newline ()
 end
