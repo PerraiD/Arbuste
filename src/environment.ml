@@ -1,7 +1,9 @@
 open Ast
 open Ast.Operand
-
-type symbol = Ast.t * Ast.Operand.t list
+(*
+type symbol = Ast.t * (Ast.Operand.t list)
+*)
+type symbol = Ast.t * (Ast.t list)
 
 type t = (string * symbol) list
 
@@ -18,17 +20,17 @@ let print env =
 (** Creates an environment with the given identifiers associated to the given
     values. *)
 let make_env idents values =
-  let f x y = match x with
+  let f x y = match x.contents with
     | Operand (Ident (i, _)) -> (i, (y, []))
     | _ -> Error.raise_simple "Bad arguments"
   in
   List.map2 f idents values
  
 (** Tells whether [key] belongs to [env]. *)
-let mem env key = List.mem_assoc key env 
+let mem (env:t) (key:string) = List.mem_assoc key env 
 
 (** Adds a functionction definition with its parameters to an environment. *)
-let add_fun env key (value:Ast.t) params =
+let add_fun (env:t) key (value:Ast.t) (params:Ast.t list) =
   if mem env key
     then
       let l = List.remove_assoc key env in

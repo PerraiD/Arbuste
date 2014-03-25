@@ -60,23 +60,24 @@ module Operand = struct
   let print_endline opd = print opd; print_newline ()
 end
 
-type t = Operand of Operand.t | Operation of Operator.t * t * t
+type t = {contents :ast; position : Lexing.position}
+and ast = Operand of Operand.t | Operation of Operator.t * t * t
 
 (** Gets a string from an ast. *)
-let to_string = function
+let to_string ast = match ast.contents with
   | Operand opd -> Operand.to_string opd
   | Operation (opn, _, _) -> Operator.to_string opn
 
 (** Prints the [ast] with only one operator or operand per line. *)
-let print ast = 
-  let rec print' = function
+let print ast =
+  let rec print' tab ast = match (tab, ast.contents) with
     | (tab, Operand x) -> print_string tab; Operand.print_endline x
     | (tab, Operation (x, y, z)) ->
       print_string tab; Operator.print_endline x;
-      print' (tab ^ "  ", y);
-      print' (tab ^ "  ", z)
+      print' (tab ^ "  ") y;
+      print' (tab ^ "  ") z
   in
-  print' ("", ast)
+  print' "" ast
 
 (** Prints AST list [l]. *)
 let print_list l = List.iter print l
