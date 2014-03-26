@@ -47,5 +47,5 @@ let find env key =
 
 (** Finds a function definition in the environment. *)
 let find_func env key =
-  try List.assoc key env
-  with Not_found -> Error.raise_simple ("Could not find identifier " ^ key)
+  try Some (List.assoc key env)
+  with Not_found -> None

@@ -71,10 +71,12 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
   | Operation (Eval, {contents = Operand (Ident i); position = pos}, params)
     -> if Environment.mem env i
          then
-           let (f, idents) = Environment.find_func env i in
-           let p =  get_params_values params env in
-           let func_env = Environment.make_env idents p in
-           evaluate f (Environment.add_fun func_env i f idents)
+           match Environment.find_func env i with
+             | None -> Error.raise_simple ("Could not find identifier " ^ i)
+             | Some (f, idents) ->
+                 let p =  get_params_values params env in
+                 let func_env = Environment.make_env idents p in
+                 evaluate f (Environment.add_fun func_env i f idents)
          else Error.raise_positioned ("Unknown function " ^ i) pos
   | Operation (Eval, _, _)
     -> Error.raise_simple "Invalid eval ... param ... construction"
