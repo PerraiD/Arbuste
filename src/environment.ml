@@ -42,8 +42,8 @@ let add env key (value:Ast.t) = add_fun env key value []
 
 (** Finds a variable value in the environment. *)
 let find env key =
-  try fst (List.assoc key env)
-  with Not_found -> Error.raise_simple ("Could not find identifier " ^ key)
+  try Some (fst (List.assoc key env))
+  with Not_found -> None
 
 (** Finds a function definition in the environment. *)
 let find_func env key =

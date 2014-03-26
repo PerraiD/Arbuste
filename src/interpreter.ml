@@ -14,8 +14,10 @@ let rec get_params_idents (ast:Ast.t) = match ast.contents with
 let rec get_params_values plist env = match plist.contents with
   | Operand EndParam -> []
   | Operation (Param, {contents = Operand (Ident i)}, next)
-    -> let opd = Environment.find env i in
-       opd :: (get_params_values next env)
+    -> begin match Environment.find env i with
+         | Some opd -> opd :: (get_params_values next env)
+         | None -> Error.raise_simple ("Could not find identifier " ^ i)
+       end
   | Operation (Param, {contents = Operand opd; position = p}, next)
     -> {contents = (Operand opd); position = p}::(get_params_values next env)
   | _ -> Error.raise_simple "Param definition error"
@@ -27,7 +29,10 @@ let warn_on_ignore ast = match ast.contents with
 (** Interprets the given [ast] with the given [env]ironment. *)
 let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
   | Operand (Ident i)
-    -> (Environment.find env i), env
+    -> begin match Environment.find env i with
+         | Some opd -> opd, env
+         | None -> Error.raise_simple ("Could not find identifier " ^ i)
+       end
   | Operand _ as leaf
     -> {ast with contents = leaf}, env
 
