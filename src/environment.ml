@@ -1,8 +1,6 @@
 open Ast
 open Ast.Operand
-(*
-type symbol = Ast.t * (Ast.Operand.t list)
-*)
+
 type symbol = Ast.t * (Ast.t list)
 
 type t = (string * symbol) list
