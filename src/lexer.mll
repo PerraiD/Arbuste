@@ -75,11 +75,11 @@ rule token = parse
 
   | eof {EOF}
 
-  | _  as lxm {Error.raise_positioned ("Unrecognized character " ^ (string_of_char lxm)) lexbuf.lex_curr_p}
+  | _  as lxm {Error.error ("Unrecognized character " ^ (string_of_char lxm)) lexbuf.lex_curr_p}
 
 and string_value buffer = parse
   | '"' {STRING (Buffer.contents buffer)}
-  | eof {Error.raise_positioned "Unexpected end of file in a open string" lexbuf.lex_curr_p}
+  | eof {Error.error "Unexpected end of file in a open string" lexbuf.lex_curr_p}
 
   | "\\t"     { Buffer.add_char buffer '\t'; string_value buffer lexbuf }
   | "\\n"     { Buffer.add_char buffer '\n'; string_value buffer lexbuf }
@@ -91,6 +91,6 @@ and string_value buffer = parse
 and comment = parse
   | "*/" {increment_bol lexbuf 2; token lexbuf}
   | _    {increment_bol lexbuf 1; comment lexbuf}
-  | eof  {Error.raise_positioned "Unexpected end of file in a comment" lexbuf.lex_curr_p}
+  | eof  {Error.error "Unexpected end of file in a comment" lexbuf.lex_curr_p}
 
 {}

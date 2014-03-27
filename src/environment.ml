@@ -20,7 +20,7 @@ let print env =
 let make_env idents values =
   let f x y = match x.contents with
     | Operand (Ident i) -> (i, (y, []))
-    | _ -> Error.raise_positioned "Bad arguments" x.position
+    | _ -> Error.error "Bad arguments" x.position
   in
   List.map2 f idents values
  

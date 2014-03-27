@@ -31,9 +31,8 @@ main:
 operation:
   | BEGIN_PAR operation END_PAR  {$2}
   | operator operation operation {{contents = Operation ($1, $2, $3); position = symbol_start_pos ()}}
-  | operand                      {{contents = Operand $1; position= symbol_start_pos ()}}
-  | error                        {Error.raise_positioned
-                                  "Missing argument" (symbol_start_pos ())}
+  | operand                      {{contents = Operand $1; position = symbol_start_pos ()}}
+  | error                        {Error.error "Missing argument" (symbol_start_pos ())}
 
 operator:
   | ADD     {Add}

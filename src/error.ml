@@ -4,7 +4,7 @@ type arbuste_exception = string * Lexing.position
 
 exception ArbusteError of arbuste_exception
 
-let raise_positioned m p = raise (ArbusteError (m, p))
+let error m p = raise (ArbusteError (m, p))
 
 let print (m,p) =
   Printf.eprintf "Error line %d character %d: %s\n" p.pos_lnum (p.pos_bol + 1) m
