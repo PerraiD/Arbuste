@@ -18,7 +18,7 @@ let print env =
 (** Creates an environment with the given identifiers associated to the given
     values. *)
 let make_env idents values =
-  let f x y = match x.contents with
+  let f x y = match x.data with
     | Operand (Ident i) -> (i, (y, []))
     | _ -> Error.error "Bad arguments" x.position
   in

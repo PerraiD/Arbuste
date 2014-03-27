@@ -26,12 +26,12 @@
 
 main:
   | operation EOF {$1}
-  | EOF           {{contents = Operand Void; position = symbol_start_pos ()}}
+  | EOF           {{data = Operand Void; position = symbol_start_pos ()}}
 
 operation:
   | BEGIN_PAR operation END_PAR  {$2}
-  | operator operation operation {{contents = Operation ($1, $2, $3); position = symbol_start_pos ()}}
-  | operand                      {{contents = Operand $1; position = symbol_start_pos ()}}
+  | operator operation operation {{data = Operation ($1, $2, $3); position = symbol_start_pos ()}}
+  | operand                      {{data = Operand $1; position = symbol_start_pos ()}}
   | error                        {Error.error "Missing argument" (symbol_start_pos ())}
 
 operator:

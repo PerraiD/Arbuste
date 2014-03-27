@@ -45,7 +45,7 @@ module Operand :
     val print_endline : t -> unit
   end
 
-type t = {contents :ast; position : Lexing.position}
+type t = {data : ast; position : Lexing.position}
 and ast = Operand of Operand.t | Operation of Operator.t * t * t
 
 val to_string : t -> string
