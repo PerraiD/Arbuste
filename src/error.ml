@@ -6,8 +6,6 @@ type arbuste_exception =
 
 exception ArbusteError of arbuste_exception
 
-let raise_simple message = raise (ArbusteError (Simple message))
-
 let raise_positioned s p =
   raise (ArbusteError (Positioned (s, p)))
 

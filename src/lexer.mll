@@ -79,7 +79,7 @@ rule token = parse
 
 and string_value buffer = parse
   | '"' {STRING (Buffer.contents buffer)}
-  | eof {Error.raise_simple "Unexpected end of file in a open string"}
+  | eof {Error.raise_positioned "Unexpected end of file in a open string" lexbuf.lex_curr_p}
 
   | "\\t"     { Buffer.add_char buffer '\t'; string_value buffer lexbuf }
   | "\\n"     { Buffer.add_char buffer '\n'; string_value buffer lexbuf }
@@ -91,6 +91,6 @@ and string_value buffer = parse
 and comment = parse
   | "*/" {increment_bol lexbuf 2; token lexbuf}
   | _    {increment_bol lexbuf 1; comment lexbuf}
-  | eof  {Error.raise_simple "Unexpected end of file in a comment"}
+  | eof  {Error.raise_positioned "Unexpected end of file in a comment" lexbuf.lex_curr_p}
 
 {}

@@ -7,20 +7,20 @@ let rec get_params_idents (ast:Ast.t) = match ast.contents with
   | Operation (Param, opd, next)
     -> begin match opd.contents with
          | (Operand _)  -> opd :: (get_params_idents next)
-         | _ -> Error.raise_simple "Param definition error"
+         | _ -> Error.raise_positioned "Param definition error" opd.position
        end
-  | _ -> Error.raise_simple "Param definition error"
+  | _ -> Error.raise_positioned "Param definition error" ast.position
 
 let rec get_params_values plist env = match plist.contents with
   | Operand EndParam -> []
-  | Operation (Param, {contents = Operand (Ident i)}, next)
+  | Operation (Param, {contents = Operand (Ident i); position = p}, next)
     -> begin match Environment.find env i with
          | Some opd -> opd :: (get_params_values next env)
-         | None -> Error.raise_simple ("Could not find identifier " ^ i)
+         | None -> Error.raise_positioned ("Could not find identifier " ^ i) p
        end
   | Operation (Param, {contents = Operand opd; position = p}, next)
     -> {contents = (Operand opd); position = p}::(get_params_values next env)
-  | _ -> Error.raise_simple "Param definition error"
+  | _ -> Error.raise_positioned "Param definition error" plist.position
 
 let warn_on_ignore ast = match ast.contents with
   | Operand Void -> ()
@@ -31,7 +31,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
   | Operand (Ident i)
     -> begin match Environment.find env i with
          | Some opd -> opd, env
-         | None -> Error.raise_simple ("Could not find identifier " ^ i)
+         | None -> Error.raise_positioned ("Could not find identifier " ^ i) ast.position
        end
   | Operand _ as leaf
     -> {ast with contents = leaf}, env
@@ -55,7 +55,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
        {ast with contents = Operand Void}, (Environment.add_fun env id f params)
   | Operation (Func, _, _)
   | Operation (Param, _, _)
-    -> Error.raise_simple "Invalid func ... param ... construction"
+    -> Error.raise_positioned "Invalid func ... param ... construction" ast.position
 
   (* Variable assignement *)
 
@@ -64,7 +64,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
        let (eval, _) = evaluate opn env in
        {ast with contents = Operand Void}, (Environment.add env id eval)     
   | Operation (Let, _, _)
-    -> Error.raise_simple "Invalid in ... let ... construction"
+    -> Error.raise_positioned "Invalid in ... let ... construction" ast.position
 
   (* Function evaluation *)
 
@@ -72,14 +72,14 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
     -> if Environment.mem env i
          then
            match Environment.find_func env i with
-             | None -> Error.raise_simple ("Could not find identifier " ^ i)
+             | None -> Error.raise_positioned ("Could not find identifier " ^ i) pos
              | Some (f, idents) ->
                  let p =  get_params_values params env in
                  let func_env = Environment.make_env idents p in
                  evaluate f (Environment.add_fun func_env i f idents)
          else Error.raise_positioned ("Unknown function " ^ i) pos
   | Operation (Eval, _, _)
-    -> Error.raise_simple "Invalid eval ... param ... construction"
+    -> Error.raise_positioned "Invalid eval ... param ... construction" ast.position
 
   (* Branching *)
 
@@ -88,11 +88,11 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
        begin match eval.contents with
          | Operand (Bool true)  -> evaluate t env
          | Operand (Bool false) -> evaluate f env
-         | _ -> Error.raise_simple "Condition must be a boolean value"
+         | _ -> Error.raise_positioned "Condition must be a boolean value" cond.position
        end
   | Operation (If, _, _)
   | Operation (Branch, _, _)
-    -> Error.raise_simple "Invalid if ... branch ... construction"
+    -> Error.raise_positioned "Invalid if ... branch ... construction" ast.position
 
   (* Read a string *)
 
@@ -101,7 +101,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
        let new_env = Environment.add env i {contents = Operand (String s); position = p} in
        {ast with contents = Operand Void}, new_env  
   | Operation (Read, _, _)
-    -> Error.raise_simple "Read error"
+    -> Error.raise_positioned "Read error" ast.position
 
   (* Reduction rules *)
 
@@ -123,7 +123,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
   | Operation (Print, {contents = Operand Stdout}, {contents = Operand (String s)})
     -> print_string s; {ast with contents = Operand Void}, env  
   | Operation (Print, _, _)
-    -> Error.raise_simple "Print error"
+    -> Error.raise_positioned "Print error" ast.position
 
   (* String concatenation *)
 
@@ -144,7 +144,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
   | Operation (Sub, _, _)
   | Operation (Mul, _, _)
   | Operation (Div, _, _)
-    -> Ast.print ast; Error.raise_simple "Arithmetic operations only accept integer values"
+    -> Error.raise_positioned "Arithmetic operations only accept integer values" ast.position
 
   (* Boolean operations *)
 
@@ -154,7 +154,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
     -> {ast with contents = Operand (Bool (x && y))}, env
   | Operation (Or, _, _)
   | Operation (And, _, _)
-    -> Error.raise_simple "Boolean operations only accept boolean values"
+    -> Error.raise_positioned "Boolean operations only accept boolean values" ast.position
   | Operation (Equal, {contents = Operand x}, {contents = Operand y})
     -> {ast with contents = Operand (Bool (x = y))}, env
   | Operation (Lesser, {contents = Operand (Int x)}, {contents = Operand (Int y)})
@@ -163,7 +163,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
     -> {ast with contents = Operand (Bool (x > y))}, env
   | Operation (Lesser, _, _)
   | Operation (Greater, _, _)
-    -> Error.raise_simple "Comparison operators can only be used between integer values"
+    -> Error.raise_positioned "Comparison operators can only be used between integer values" ast.position
 
   (* Type casting *)
 
@@ -176,7 +176,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
   | Operation (Cast, {contents = Operand ToInt}, {contents = Operand (String s)})
     -> begin
          try let i = int_of_string s in {ast with contents = Operand (Int i)}, env
-         with _ -> Error.raise_simple ("Cannot convert " ^ s ^ " to an int")
+         with _ -> Error.raise_positioned ("Cannot convert " ^ s ^ " to an int") ast.position
        end
   | Operation (Cast, {contents = Operand ToInt}, {contents = Operand (Int i)})
     -> {ast with contents = Operand (Int i)}, env
@@ -187,19 +187,19 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.contents with
   | Operation (Cast, {contents = Operand ToBool}, {contents = Operand (String s)})
     -> begin
          try let b = bool_of_string s in {ast with contents = Operand (Bool b)}, env
-         with _ -> Error.raise_simple ("Cannot convert " ^ s ^ " to a bool")
+         with _ -> Error.raise_positioned ("Cannot convert " ^ s ^ " to a bool") ast.position
        end
   | Operation (Cast, {contents = Operand ToBool}, {contents = Operand (Int i)})
     -> begin match i with
          | 0 -> {ast with contents = Operand (Bool false)}, env
          | 1 -> {ast with contents = Operand (Bool true)}, env
-         | _ -> Error.raise_simple ("Cannot convert " ^ (string_of_int i)
-                                  ^ "to a bool")
+         | _ -> Error.raise_positioned ("Cannot convert " ^ (string_of_int i)
+                                  ^ "to a bool") ast.position
        end
   | Operation (Cast, {contents = Operand ToBool}, {contents = Operand (Bool b)})
     -> {ast with contents = Operand (Bool b)}, env
   | Operation (Cast, _, _)
-    -> Error.raise_simple "Cast error"
+    -> Error.raise_positioned "Cast error" ast.position
 
 (** Interprets the given [ast]. *)
 let run ast =
@@ -207,4 +207,4 @@ let run ast =
   let eval, _ = evaluate ast env in
   match eval.contents with
     | Operand Void -> ()
-    | _ -> Error.raise_simple "The program should return void"
+    | _ -> Error.warn "The program should return void"
