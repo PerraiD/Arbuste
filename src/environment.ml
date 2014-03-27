@@ -25,10 +25,10 @@ let make_env idents values =
   List.map2 f idents values
  
 (** Tells whether [key] belongs to [env]. *)
-let mem (env:t) (key:string) = List.mem_assoc key env 
+let mem env key = List.mem_assoc key env 
 
 (** Adds a functionction definition with its parameters to an environment. *)
-let add_fun (env:t) key (value:Ast.t) (params:Ast.t list) =
+let add_fun env key value params =
   if mem env key
     then
       let l = List.remove_assoc key env in
@@ -36,7 +36,7 @@ let add_fun (env:t) key (value:Ast.t) (params:Ast.t list) =
     else (key, (value, params)) :: env
 
 (** Adds a variable to the environment. *)
-let add env key (value:Ast.t) = add_fun env key value []
+let add env key value = add_fun env key value []
 
 (** Finds a variable value in the environment. *)
 let find env key =
