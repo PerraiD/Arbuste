@@ -33,8 +33,7 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.data with
          | Some opd -> opd, env
          | None -> Error.error ("Could not find identifier " ^ i) ast.position
        end
-  | Operand _ as leaf
-    -> {ast with data = leaf}, env
+  | Operand _  -> ast, env
 
   (* Sequences *)
 
