@@ -104,18 +104,18 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.data with
 
   (* Reduction rules *)
 
-  | Operation (opr, {data = Operation (o, x, y); position = p}, opd)
-    -> let in_eval, _ = evaluate {data = Operation (o, x, y); position = p} env in
-       evaluate {ast with data = Operation (opr, in_eval, opd)} env
-  | Operation (opr, {data = Operand (Ident i); position = p}, opd)
-    -> let in_eval, _ = evaluate {data = Operand (Ident i); position = p} env in
-       evaluate {ast with data = Operation (opr, in_eval, opd)} env
-  | Operation (opr, opd, {data = Operation (o, x, y); position = p})
-    -> let in_eval, _ = evaluate {data = Operation (o, x, y); position = p} env in
-       evaluate { ast with data = Operation (opr, opd, in_eval)} env
-  | Operation (opr, opd, {data = Operand (Ident i); position = p})
-    -> let in_eval, _ = evaluate {data = Operand (Ident i); position = p} env in
-       evaluate {ast with data = Operation (opr, opd, in_eval)} env
+  | Operation (opr, ({data = Operation _} as left), right)
+    -> let in_eval, _ = evaluate left env in
+       evaluate {ast with data = Operation (opr, in_eval, right)} env
+  | Operation (opr, ({data = Operand (Ident _)} as left), right)
+    -> let in_eval, _ = evaluate left env in
+       evaluate {ast with data = Operation (opr, in_eval, right)} env
+  | Operation (opr, left, ({data = Operation _} as right))
+    -> let in_eval, _ = evaluate right env in
+       evaluate {ast with data = Operation (opr, left, in_eval)} env
+  | Operation (opr, left, ({data = Operand (Ident _)} as right))
+    -> let in_eval, _ = evaluate right env in
+       evaluate {ast with data = Operation (opr, left, in_eval)} env
 
   (* Print a string *)
 
