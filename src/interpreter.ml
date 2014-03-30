@@ -2,24 +2,24 @@ open Ast
 open Ast.Operator
 open Ast.Operand
 
-let rec get_params_idents (ast:Ast.t) = match ast.data with
+let rec get_params ast = match ast.data with
   | Operand EndParam -> []
   | Operation (Param, opd, next)
     -> begin match opd.data with
-         | (Operand _)  -> opd :: (get_params_idents next)
+         | (Operand _)  -> opd :: (get_params next)
          | _ -> Error.error "Param definition error" opd.position
        end
   | _ -> Error.error "Param definition error" ast.position
 
-let rec get_params_values plist env = match plist.data with
+let rec get_args plist env = match plist.data with
   | Operand EndParam -> []
-  | Operation (Param, {data = Operand (Ident i); position = p}, next)
+  | Operation (Param, {data = Operand (Ident i); position}, next)
     -> begin match Environment.find env i with
-         | Some opd -> opd :: (get_params_values next env)
-         | None -> Error.error ("Could not find identifier " ^ i) p
+         | Some opd -> opd :: (get_args next env)
+         | None -> Error.error ("Could not find identifier " ^ i) position
        end
-  | Operation (Param, {data = Operand opd; position = p}, next)
-    -> {data = (Operand opd); position = p}::(get_params_values next env)
+  | Operation (Param, {data = Operand opd; position}, next)
+    -> {data = (Operand opd); position}::(get_args next env)
   | _ -> Error.error "Param definition error" plist.position
 
 let warn_on_ignore ast = match ast.data with
@@ -27,11 +27,11 @@ let warn_on_ignore ast = match ast.data with
   | _ -> Error.warn "Ignored value"
 
 (** Interprets the given [ast] with the given [env]ironment. *)
-let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.data with
-  | Operand (Ident i)
-    -> begin match Environment.find env i with
+let rec evaluate ast env = match ast.data with
+  | Operand (Ident id)
+    -> begin match Environment.find env id with
          | Some opd -> opd, env
-         | None -> Error.error ("Could not find identifier " ^ i) ast.position
+         | None -> Error.error ("Could not find identifier " ^ id) ast.position
        end
   | Operand _  -> ast, env
 
@@ -48,18 +48,19 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.data with
 
   (* Function declaration *)
 
-  | Operation (Let, {data = Operand (Ident id); position = pos}, {data = Operation (Func, p, f)})
-    -> if Environment.mem env id then Error.warn_shadowed id pos;
-       let params = get_params_idents p in
-       {ast with data = Operand Void}, (Environment.add_fun env id f params)
+  | Operation (Let, {data = Operand (Ident id); position}, {data = Operation (Func, params, f)})
+    -> if Environment.mem env id then Error.warn_shadowed id position;
+       let param_list = get_params params in
+       let new_env = Environment.add_fun env id f param_list in
+       {ast with data = Operand Void}, new_env
   | Operation (Func, _, _)
   | Operation (Param, _, _)
     -> Error.error "Invalid func ... param ... construction" ast.position
 
   (* Variable assignement *)
 
-  | Operation (Let, {data = Operand (Ident id); position = p}, opn)
-    -> if Environment.mem env id then Error.warn_shadowed id p;
+  | Operation (Let, {data = Operand (Ident id); position}, opn)
+    -> if Environment.mem env id then Error.warn_shadowed id position;
        let (eval, _) = evaluate opn env in
        {ast with data = Operand Void}, (Environment.add env id eval)     
   | Operation (Let, _, _)
@@ -67,16 +68,16 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.data with
 
   (* Function evaluation *)
 
-  | Operation (Eval, {data = Operand (Ident i); position = pos}, params)
-    -> if Environment.mem env i
+  | Operation (Eval, {data = Operand (Ident id); position}, params)
+    -> if Environment.mem env id
          then
-           match Environment.find_func env i with
-             | None -> Error.error ("Could not find identifier " ^ i) pos
+           match Environment.find_func env id with
+             | None -> Error.error ("Could not find identifier " ^ id) position
              | Some (f, idents) ->
-                 let p =  get_params_values params env in
-                 let func_env = Environment.make_env idents p in
-                 evaluate f (Environment.add_fun func_env i f idents)
-         else Error.error ("Unknown function " ^ i) pos
+                 let args =  get_args params env in
+                 let func_env = Environment.make_env idents args in
+                 evaluate f (Environment.add_fun func_env id f idents)
+         else Error.error ("Unknown function " ^ id) position
   | Operation (Eval, _, _)
     -> Error.error "Invalid eval ... param ... construction" ast.position
 
@@ -95,9 +96,9 @@ let rec evaluate (ast:Ast.t) (env:Environment.t) = match ast.data with
 
   (* Read a string *)
 
-  | Operation (Read, {data = Operand Stdin}, {data = Operand (Ident i); position = p})
+  | Operation (Read, {data = Operand Stdin}, {data = Operand (Ident id); position})
     -> let s = input_line stdin in
-       let new_env = Environment.add env i {data = Operand (String s); position = p} in
+       let new_env = Environment.add env id {data = Operand (String s); position} in
        {ast with data = Operand Void}, new_env  
   | Operation (Read, _, _)
     -> Error.error "Read error" ast.position
