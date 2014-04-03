@@ -201,7 +201,6 @@ let rec evaluate ast env = match ast.data with
   | Operation (Cast, _, _)
     -> Error.error "Cast error" ast.position
 
-(** Interprets the given [ast]. *)
 let run ast =
   let env = Environment.create () in
   let eval, _ = evaluate ast env in
